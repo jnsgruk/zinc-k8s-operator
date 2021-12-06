@@ -121,4 +121,8 @@ async def test_can_auth_with_zinc(ops_test: OpsTest):
         data=json.dumps(data),
     )
 
+    results = res.json()
+    assert res.status_code == 200
+    assert "id" in results.keys()
+
     logger.info("successfully queried the Zinc API, got response: '%s'", str(res.json()))

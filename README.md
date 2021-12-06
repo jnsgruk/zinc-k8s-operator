@@ -48,15 +48,16 @@ You should then be able to browse to `http://<address>:4080` and login with the 
 
 ## OCI Images
 
-This charm uses the image provided by the upstream on Amazon ECR: [zinc:v0.1.1]
+This charm uses the image provided by the upstream on Amazon ECR: [zinc image]
 
 ## Contributing
 
 Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
-on enhancements to this charm following best practice guidelines, and
-[CONTRIBUTING.md](./CONTRIBUTING.md) for developer guidance.
+on enhancements to this charm following best practice guidelines, and the
+[contributing] doc for developer guidance.
 
 [zinc]: https://github.com/prabhatsharma/zinc
 [bluge]: https://github.com/blugelabs/bluge
 [elasticsearch]: https://www.elastic.co/
-[zinc:v0.1.1]: public.ecr.aws/m5j1b6u0/zinc:v0.1.1
+[zinc image]: https://gallery.ecr.aws/m5j1b6u0/zinc
+[contributing]: https://github.com/jnsgruk/zinc-k8s-operator/blob/main/CONTRIBUTING.md
