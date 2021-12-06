@@ -28,6 +28,7 @@ class TestCharm(unittest.TestCase):
                     "command": "/go/bin/zinc",
                     "startup": "enabled",
                     "environment": {
+                        "DATA_PATH": "/go/bin/data",
                         "FIRST_ADMIN_USER": "admin",
                         "FIRST_ADMIN_PASSWORD": "#Pa55word!",
                     },
