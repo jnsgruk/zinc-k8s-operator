@@ -29,7 +29,7 @@ resources:
     type: oci-image
     description: OCI image for zinc
     # Included for simplicity in integration tests
-    upstream-source: public.ecr.aws/m5j1b6u0/zinc:v1
+    upstream-source: public.ecr.aws/m5j1b6u0/zinc:latest
 
 storage:
   data:
