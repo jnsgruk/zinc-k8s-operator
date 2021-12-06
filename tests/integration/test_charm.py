@@ -25,7 +25,7 @@ async def test_build_and_deploy(ops_test: OpsTest):
     """
     # build and deploy charm from local source folder
     charm = await ops_test.build_charm(".")
-    resources = {"httpbin-image": METADATA["resources"]["httpbin-image"]["upstream-source"]}
+    resources = {"zinc-image": METADATA["resources"]["zinc-image"]["upstream-source"]}
     await ops_test.model.deploy(charm, resources=resources, application_name=APP_NAME)
 
     # issuing dummy update_status just to trigger an event
@@ -43,7 +43,7 @@ async def test_application_is_up(ops_test: OpsTest):
     status = await ops_test.model.get_status()  # noqa: F821
     address = status["applications"][APP_NAME]["units"][f"{APP_NAME}/0"]["address"]
 
-    url = f"http://{address}"
+    url = f"http://{address}:4080"
 
     logger.info("querying app address: %s", url)
     response = urllib.request.urlopen(url, data=None, timeout=2.0)

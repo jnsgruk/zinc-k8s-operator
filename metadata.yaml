@@ -1,25 +1,37 @@
 # Copyright 2021 Canonical Ltd.
 # See LICENSE file for licensing details.
-
-# For a complete list of supported options, see:
-# https://discourse.charmhub.io/t/charm-metadata-v2/3674/15
-name: operator-template
-display-name: |
-  TEMPLATE-TODO: fill out a display name for the Charmcraft store
+name: zinc-k8s
+display-name: Zinc
 description: |
-  TEMPLATE-TODO: fill out the charm's description
+  Zinc is a search engine that does full text indexing. It is a lightweight alternative to
+  elasticsearch and runs in less than 100 MB of RAM. It uses bluge as the underlying indexing
+  library.
+
+  It is very simple and easy to operate as opposed to elasticsearch which requires a couple dozen
+  knobs to understand and tune.
+
+  It is a drop-in replacement for elasticsearch if you are just ingesting data using APIs and
+  searching using kibana (Kibana is not supported with zinc. Zinc provides its own UI).
 summary: |
-  TEMPLATE-TODO: fill out the charm's summary
+  Zinc is a search engine that does full text indexing. It is a lightweight alternative to
+  elasticsearch and runs in less than 100 MB of RAM. It uses bluge as the underlying indexing
+  library.
 
-# TEMPLATE-TODO: replace with containers for your workload (delete for non-k8s)
 containers:
-  httpbin:
-    resource: httpbin-image
+  zinc:
+    resource: zinc-image
+    mounts:
+      - storage: data
+        location: /go/bin/data
 
-# TEMPLATE-TODO: each container defined above must specify an oci-image resource
 resources:
-  httpbin-image:
+  zinc-image:
     type: oci-image
-    description: OCI image for httpbin (kennethreitz/httpbin)
+    description: OCI image for zinc
     # Included for simplicity in integration tests
-    upstream-source: kennethreitz/httpbin
+    upstream-source: public.ecr.aws/m5j1b6u0/zinc:v1
+
+storage:
+  data:
+    type: filesystem
+    location: /zinc-data
