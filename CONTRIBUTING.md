@@ -55,5 +55,5 @@ juju add-model dev
 juju model-config logging-config="<root>=INFO;unit=DEBUG"
 # Deploy the charm
 juju deploy ./zinc-k8s_ubuntu-20.04-amd64.charm \
-    --resource zinc-image=public.ecr.aws/m5j1b6u0/zinc:v1 \
+    --resource zinc-image=public.ecr.aws/m5j1b6u0/zinc:v0.1.1 \
 ```

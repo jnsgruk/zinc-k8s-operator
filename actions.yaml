@@ -1,0 +1,7 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+get-admin-password:
+  description: |
+    Get the initial admin password for Zinc. This is generated at charm deployment time. If the
+    password has been changed using the Zinc UI/API, this will not be valid.
