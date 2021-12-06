@@ -34,11 +34,10 @@ jobs:
           provider: microk8s
       - name: Run integration tests
         # set a predictable model name so it can be consumed by charm-logdump-action
-        run: tox -e integration -- --model itest
+        run: tox -e integration -- --model testing
       - name: Dump logs
         uses: canonical/charm-logdump-action@main
         if: failure()
         with:
-          # TEMPLATE-TODO: Replace the application name
-          app: operator-template
-          model: itest
+          app: zinc-k8s
+          model: testing
