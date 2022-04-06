@@ -9,6 +9,9 @@ import secrets
 import string
 
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
+from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
+# from charms.loki_k8s.v0.loki_push_api import LokiPushApiConsumer
+# from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from ops.charm import ActionEvent, CharmBase, WorkloadEvent
 from ops.framework import StoredState
 from ops.main import main
@@ -21,6 +24,7 @@ logger = logging.getLogger(__name__)
 class ZincCharm(CharmBase):
     """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
+    _name = "zinc"
     _stored = StoredState()
 
     def __init__(self, *args):
@@ -28,8 +32,22 @@ class ZincCharm(CharmBase):
         self._stored.set_default(initial_admin_password="")
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
-
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade)
         self._service_patcher = KubernetesServicePatch(self, [(self.app.name, 4080, 4080)])
+
+        # Set up observability services
+        self.metrics_endpoint_provider = MetricsEndpointProvider(
+            self,
+            jobs=[{
+                "static_configs": [{"targets": ["*:4080"]}],
+            }])
+        # self._grafana_dashboards = GrafanaDashboardProvider(self)
+        # self._loki_logs = LokiPushApiConsumer(self)
+
+    def _on_upgrade(self, event: WorkloadEvent):
+        container = self.unit.get_container(self._name)
+        container.add_layer(self._name, self._pebble_layer, combine=True)
+        container.replan()
 
     def _on_zinc_pebble_ready(self, event: WorkloadEvent):
         """Define and start a workload using the Pebble API."""
@@ -41,7 +59,7 @@ class ZincCharm(CharmBase):
             self._stored.initial_admin_password = self._generate_password()
 
         # Define an initial Pebble layer configuration
-        container.add_layer("zinc", self._pebble_layer, combine=True)
+        container.add_layer(self._name, self._pebble_layer, combine=True)
         container.autostart()
         self.unit.status = ActiveStatus()
 
@@ -52,19 +70,27 @@ class ZincCharm(CharmBase):
         event.set_results({"admin-password": self._stored.initial_admin_password})
 
     @property
+    def _requires_restart(self) -> bool:
+        current = container.get_plan().services
+        pending = self._pebble_layer.services
+        return current != pending
+
+
+    @property
     def _pebble_layer(self) -> Layer:
         return Layer(
             {
                 "services": {
-                    "zinc": {
+                    self._name: {
                         "override": "replace",
-                        "summary": "zinc",
+                        "summary": self._name,
                         "command": "/go/bin/zinc",
                         "startup": "enabled",
                         "environment": {
-                            "DATA_PATH": "/go/bin/data",
-                            "FIRST_ADMIN_USER": "admin",
-                            "FIRST_ADMIN_PASSWORD": self._stored.initial_admin_password,
+                            "ZINC_DATA_PATH": "/go/bin/data",
+                            "ZINC_FIRST_ADMIN_USER": "admin",
+                            "ZINC_FIRST_ADMIN_PASSWORD": self._stored.initial_admin_password,
+                            "ZINC_PROMETHEUS_ENABLE": "true",
                         },
                     }
                 },

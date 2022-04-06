@@ -31,6 +31,10 @@ resources:
     # Included for simplicity in integration tests
     upstream-source: public.ecr.aws/m5j1b6u0/zinc:v0.1.1
 
+provides:
+  metrics-endpoint:
+    interface: prometheus_scrape
+
 storage:
   data:
     type: filesystem
