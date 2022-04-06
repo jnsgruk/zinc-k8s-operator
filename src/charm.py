@@ -84,7 +84,7 @@ class ZincCharm(CharmBase):
                     self._name: {
                         "override": "replace",
                         "summary": self._name,
-                        "command": "/go/bin/zinc",
+                        "command": "/bin/sh -c \"/go/bin/zinc | tee /logs\"",
                         "startup": "enabled",
                         "environment": {
                             "ZINC_DATA_PATH": "/go/bin/data",
