@@ -48,7 +48,7 @@ You should then be able to browse to `http://<address>:4080` and login with the 
 
 ## OCI Images
 
-This charm uses the image provided by the upstream on Amazon ECR: [zinc image]
+This charm uses [an altered version](https://hub.docker.com/r/jnsgruk/zinc) of the image provided by the upstream, running on `ubuntu` rather than `scratch`. 
 
 ## Contributing
 
