@@ -34,6 +34,13 @@ resources:
 provides:
   metrics-endpoint:
     interface: prometheus_scrape
+  grafana-dashboard:
+    interface: grafana_dashboard
+
+requires:
+  logging:
+    interface: loki_push_api
+    limit: 1
 
 storage:
   data:

@@ -10,8 +10,8 @@ import string
 
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
-# from charms.loki_k8s.v0.loki_push_api import LokiPushApiConsumer
-# from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
+from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
+from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from ops.charm import ActionEvent, CharmBase, WorkloadEvent
 from ops.framework import StoredState
 from ops.main import main
@@ -25,10 +25,13 @@ class ZincCharm(CharmBase):
     """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
     _name = "zinc"
+    _log_path = "/zinc.log"
+    _logging_relation = "logging"
     _stored = StoredState()
 
     def __init__(self, *args):
         super().__init__(*args)
+        
         self._stored.set_default(initial_admin_password="")
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
@@ -36,13 +39,33 @@ class ZincCharm(CharmBase):
         self._service_patcher = KubernetesServicePatch(self, [(self.app.name, 4080, 4080)])
 
         # Set up observability services
+        self._init_metrics()
+        self._init_logs()        
+        self._init_dashboards()
+
+    def _init_metrics(self):
         self.metrics_endpoint_provider = MetricsEndpointProvider(
             self,
             jobs=[{
                 "static_configs": [{"targets": ["*:4080"]}],
             }])
-        # self._grafana_dashboards = GrafanaDashboardProvider(self)
-        # self._loki_logs = LokiPushApiConsumer(self)
+
+    def _init_logs(self):
+        self._loki_logs = LogProxyConsumer(
+            self, 
+            relation_name=self._logging_relation,
+            log_files=[self._log_path]
+            )
+        self.framework.observe(self._loki_logs.on.promtail_digest_error, self._on_promtail_error)
+
+    def _init_dashboards(self):
+        self._grafana_dashboards = GrafanaDashboardProvider(
+            self, 
+            relation_name="grafana-dashboard"
+        )
+
+    def _on_promtail_error(self, event):
+        logger.error(str(event))
 
     def _on_upgrade(self, event: WorkloadEvent):
         container = self.unit.get_container(self._name)
@@ -84,7 +107,7 @@ class ZincCharm(CharmBase):
                     self._name: {
                         "override": "replace",
                         "summary": self._name,
-                        "command": "/bin/sh -c \"/go/bin/zinc | tee /logs\"",
+                        "command": "/bin/sh -c \"/go/bin/zinc | tee {}\"".format(self._log_path),
                         "startup": "enabled",
                         "environment": {
                             "ZINC_DATA_PATH": "/go/bin/data",
