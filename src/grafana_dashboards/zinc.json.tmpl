@@ -1,0 +1,808 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "iteration": 1650357982775,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "panels": [],
+      "title": "General",
+      "type": "row"
+    },
+    {
+      "datasource": "${prometheusds}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "auto"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "index": 1,
+                  "text": "❌ Down"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "✔️ Up"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unit"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 133
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 79
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "frameIndex": 1,
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.1.1",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(up{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}) by (juju_unit)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Unit Status",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "labelsToFields": true,
+            "reducers": [
+              "last"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Field": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Field": "",
+              "Last": "Status",
+              "juju_unit": "Unit"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": false,
+                "field": "Unit"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": "${prometheusds}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 20,
+        "x": 4,
+        "y": 1
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(rate(gin_requests_total{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) OR on() vector(0)",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP Requests/min",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "sum(rate(gin_requests_total{juju_model=\"cos\", juju_model_uuid=\"156b9d34-5c3f-453f-891f-200dbb17a607\", juju_application=\"zinc\"}[2m])) OR on() vector(0)": "requests per minute"
+            }
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": "${prometheusds}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 11,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 20,
+        "x": 4,
+        "y": 9
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.1.1",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(0.01, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "p1",
+          "refId": "E"
+        },
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(0.50, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "p50",
+          "refId": "D"
+        },
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(0.90, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "p90",
+          "refId": "C"
+        },
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(0.95, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(0.99, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "p99",
+          "queryType": "randomWalk",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(1, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "p100",
+          "refId": "F"
+        }
+      ],
+      "title": "HTTP Request Durations",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Logging",
+      "type": "row"
+    },
+    {
+      "datasource": "${lokids}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 19
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 80
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.1",
+      "targets": [
+        {
+          "expr": "sum(rate({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]))",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Lines/m",
+      "type": "stat"
+    },
+    {
+      "datasource": "${lokids}",
+      "gridPos": {
+        "h": 15,
+        "w": 20,
+        "x": 4,
+        "y": 19
+      },
+      "id": 4,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Ascending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "expr": "{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": "${lokids}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 24
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 80
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.1",
+      "targets": [
+        {
+          "expr": "sum(rate({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]|~ \"ERROR\"))",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs/m",
+      "type": "stat"
+    },
+    {
+      "datasource": "${lokids}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 29
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 80
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.1",
+      "targets": [
+        {
+          "expr": "sum(rate({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]|~ \"GIN-debug\"))",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Debug Logs/m",
+      "type": "stat"
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "juju_cos_156b9d34-5c3f-453f-891f-200dbb17a607_prometheus_0",
+          "value": "juju_cos_156b9d34-5c3f-453f-891f-200dbb17a607_prometheus_0"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "prometheusds",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "juju_cos_156b9d34-5c3f-453f-891f-200dbb17a607_loki_0",
+          "value": "juju_cos_156b9d34-5c3f-453f-891f-200dbb17a607_loki_0"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "lokids",
+        "options": [],
+        "query": "loki",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "zinc/0",
+          "value": "zinc/0"
+        },
+        "datasource": "${prometheusds}",
+        "definition": "label_values(up{juju_model=\"$juju_model\",juju_model_uuid=\"$juju_model_uuid\",juju_application=\"$juju_application\"},juju_unit)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Juju unit",
+        "multi": false,
+        "name": "juju_unit",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=\"$juju_model\",juju_model_uuid=\"$juju_model_uuid\",juju_application=\"$juju_application\"},juju_unit)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "zinc",
+          "value": "zinc"
+        },
+        "datasource": "${prometheusds}",
+        "definition": "label_values(up{juju_model=\"$juju_model\",juju_model_uuid=\"$juju_model_uuid\"},juju_application)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Juju application",
+        "multi": false,
+        "name": "juju_application",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=\"$juju_model\",juju_model_uuid=\"$juju_model_uuid\"},juju_application)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "156b9d34-5c3f-453f-891f-200dbb17a607",
+          "value": "156b9d34-5c3f-453f-891f-200dbb17a607"
+        },
+        "datasource": "${prometheusds}",
+        "definition": "label_values(up{juju_model=\"$juju_model\"},juju_model_uuid)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Juju model uuid",
+        "multi": false,
+        "name": "juju_model_uuid",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=\"$juju_model\"},juju_model_uuid)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "cos",
+          "value": "cos"
+        },
+        "datasource": "${prometheusds}",
+        "definition": "label_values(up,juju_model)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Juju model",
+        "multi": false,
+        "name": "juju_model",
+        "options": [],
+        "query": {
+          "query": "label_values(up,juju_model)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Zinc",
+  "uid": "z9ghSzQ7z",
+  "version": 1
+}
