@@ -21,7 +21,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1650357982775,
+  "iteration": 1650457747401,
   "links": [],
   "panels": [
     {
@@ -331,6 +331,8 @@
         "y": 9
       },
       "id": 14,
+      "interval": null,
+      "maxDataPoints": null,
       "options": {
         "legend": {
           "calcs": [],
@@ -345,7 +347,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.01, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.01, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\", url=\"/ui/\"}[2m])) by (le))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -354,7 +356,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.50, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\", url=\"/ui/\"}[2m])) by (le))",
           "hide": false,
           "interval": "",
           "legendFormat": "p50",
@@ -362,7 +364,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.90, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.90, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\", url=\"/ui/\"}[2m])) by (le))",
           "hide": false,
           "interval": "",
           "legendFormat": "p90",
@@ -370,7 +372,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\", url=\"/ui/\"}[2m])) by (le))",
           "hide": false,
           "interval": "",
           "legendFormat": "p95",
@@ -378,7 +380,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\", url=\"/ui/\"}[2m])) by (le))",
           "format": "time_series",
           "interval": "",
           "legendFormat": "p99",
@@ -387,7 +389,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(1, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) by (le))",
+          "expr": "histogram_quantile(1, sum(rate(gin_request_duration_seconds_bucket{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\", url=\"/ui/\"}[2m])) by (le))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -395,6 +397,7 @@
           "refId": "F"
         }
       ],
+      "timeFrom": null,
       "title": "HTTP Request Durations",
       "type": "timeseries"
     },
@@ -797,7 +800,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
