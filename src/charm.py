@@ -31,7 +31,7 @@ class ZincCharm(CharmBase):
 
     def __init__(self, *args):
         super().__init__(*args)
-        
+
         self._stored.set_default(initial_admin_password="")
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
@@ -40,28 +40,28 @@ class ZincCharm(CharmBase):
 
         # Set up observability services
         self._init_metrics()
-        self._init_logs()        
+        self._init_logs()
         self._init_dashboards()
 
     def _init_metrics(self):
         self.metrics_endpoint_provider = MetricsEndpointProvider(
             self,
-            jobs=[{
-                "static_configs": [{"targets": ["*:4080"]}],
-            }])
+            jobs=[
+                {
+                    "static_configs": [{"targets": ["*:4080"]}],
+                }
+            ],
+        )
 
     def _init_logs(self):
         self._loki_logs = LogProxyConsumer(
-            self, 
-            relation_name=self._logging_relation,
-            log_files=[self._log_path]
-            )
+            self, relation_name=self._logging_relation, log_files=[self._log_path]
+        )
         self.framework.observe(self._loki_logs.on.promtail_digest_error, self._on_promtail_error)
 
     def _init_dashboards(self):
         self._grafana_dashboards = GrafanaDashboardProvider(
-            self, 
-            relation_name="grafana-dashboard"
+            self, relation_name="grafana-dashboard"
         )
 
     def _on_promtail_error(self, event):
@@ -98,7 +98,6 @@ class ZincCharm(CharmBase):
         pending = self._pebble_layer.services
         return current != pending
 
-
     @property
     def _pebble_layer(self) -> Layer:
         return Layer(
@@ -107,7 +106,7 @@ class ZincCharm(CharmBase):
                     self._name: {
                         "override": "replace",
                         "summary": self._name,
-                        "command": "/bin/sh -c \"/go/bin/zinc | tee {}\"".format(self._log_path),
+                        "command": '/bin/sh -c "/go/bin/zinc | tee {}"'.format(self._log_path),
                         "startup": "enabled",
                         "environment": {
                             "ZINC_DATA_PATH": "/go/bin/data",
