@@ -8,10 +8,10 @@ import logging
 import secrets
 import string
 
+from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
+from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
-from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
-from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from ops.charm import ActionEvent, CharmBase, WorkloadEvent
 from ops.framework import StoredState
 from ops.main import main
@@ -91,12 +91,6 @@ class ZincCharm(CharmBase):
         if not self._stored.initial_admin_password:
             self._stored.initial_admin_password = self._generate_password()
         event.set_results({"admin-password": self._stored.initial_admin_password})
-
-    @property
-    def _requires_restart(self) -> bool:
-        current = container.get_plan().services
-        pending = self._pebble_layer.services
-        return current != pending
 
     @property
     def _pebble_layer(self) -> Layer:

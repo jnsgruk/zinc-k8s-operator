@@ -13,9 +13,11 @@ import pytest
 import requests
 import tenacity
 import yaml
-from lightkube import Client
+from lightkube.core.client import Client
 from lightkube.resources.core_v1 import Service
 from pytest_operator.plugin import OpsTest
+from tenacity.stop import stop_after_attempt
+from tenacity.wait import wait_exponential
 
 logger = logging.getLogger(__name__)
 
@@ -70,8 +72,8 @@ async def test_get_admin_password_action(ops_test: OpsTest):
 
 
 @tenacity.retry(
-    wait=tenacity.wait_exponential(multiplier=2, min=1, max=30),
-    stop=tenacity.stop_after_attempt(10),
+    wait=wait_exponential(multiplier=2, min=1, max=30),
+    stop=stop_after_attempt(10),
     reraise=True,
 )
 async def test_application_service_port_patch(ops_test: OpsTest):
