@@ -70,13 +70,13 @@ class TestCharm(unittest.TestCase):
                     "zinc": {
                         "override": "replace",
                         "summary": "zinc",
-                        "command": '/bin/sh -c "/go/bin/zinc | tee /zinc.log"',
+                        "command": '/bin/sh -c "/go/bin/zinc | tee /zinc.logs"',
                         "startup": "enabled",
                         "environment": {
                             "ZINC_DATA_PATH": "/go/bin/data",
                             "ZINC_FIRST_ADMIN_USER": "admin",
                             "ZINC_FIRST_ADMIN_PASSWORD": "password",
-                            "ZINC_PROMETHEUS_ENABLE": "true",
+                            "ZINC_PROMETHEUS_ENABLE": True,
                         },
                     }
                 },
