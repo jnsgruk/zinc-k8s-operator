@@ -70,7 +70,7 @@ class TestCharm(unittest.TestCase):
                     "zinc": {
                         "override": "replace",
                         "summary": "zinc",
-                        "command": '/bin/sh -c "/go/bin/zinc | tee /zinc.logs"',
+                        "command": '/bin/sh -c "/go/bin/zinc | tee /var/log/zinc.log"',
                         "startup": "enabled",
                         "environment": {
                             "ZINC_DATA_PATH": "/go/bin/data",

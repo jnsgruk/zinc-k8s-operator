@@ -25,7 +25,7 @@ class ZincCharm(CharmBase):
     """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
     _stored = StoredState()
-    _log_path = "/zinc.logs"
+    _log_path = "/var/log/zinc.log"
 
     def __init__(self, *args):
         super().__init__(*args)
