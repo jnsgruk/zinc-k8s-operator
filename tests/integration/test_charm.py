@@ -122,7 +122,7 @@ async def test_can_auth_with_zinc(ops_test: OpsTest):
         headers={"Content-type": "application/json", "Authorization": f"Basic {creds}"},
         data=json.dumps(data),
     )
-
+    print(res)
     results = res.json()
     assert res.status_code == 200
     assert "id" in results.keys()
