@@ -467,7 +467,7 @@
       "pluginVersion": "8.1.1",
       "targets": [
         {
-          "expr": "sum(rate({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]))",
+          "expr": "count_over_time({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m])",
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -556,7 +556,7 @@
       "pluginVersion": "8.1.1",
       "targets": [
         {
-          "expr": "sum(rate({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]|~ \"ERROR\"))",
+          "expr": "count_over_time({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]|~ \"ERROR\")",
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -617,7 +617,7 @@
       "pluginVersion": "8.1.1",
       "targets": [
         {
-          "expr": "sum(rate({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]|~ \"GIN-debug\"))",
+          "expr": "count_over_time({juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[1m]|~ \"GIN-debug\")",
           "queryType": "randomWalk",
           "refId": "A"
         }
