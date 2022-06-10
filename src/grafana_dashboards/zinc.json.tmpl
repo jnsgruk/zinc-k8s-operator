@@ -245,7 +245,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(gin_requests_total{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) OR on() vector(0)",
+          "expr": "sum(count_over_time(gin_requests_total{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}[2m])) OR on() vector(0)",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
