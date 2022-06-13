@@ -5,7 +5,6 @@
 
 import base64
 import gzip
-import json
 import logging
 import re
 from pathlib import Path
@@ -101,7 +100,7 @@ async def test_can_auth_with_zinc(ops_test: OpsTest):
 
     # Load sample data from quickstart docs
     # https://github.com/zinclabs/zincsearch-docs/blob/beca3d17e7d3da15cbf5abfffefffdcbb833758d/docs/quickstart.md?plain=1#L114
-    with gzip.open("./tests/integration/olympics.ndjson.gz",'r') as f:
+    with gzip.open("./tests/integration/olympics.ndjson.gz", "r") as f:
         data = f.read()
 
     # Encode the credentials for the API using the password from the charm action
@@ -114,7 +113,7 @@ async def test_can_auth_with_zinc(ops_test: OpsTest):
         headers={"Content-type": "application/json", "Authorization": f"Basic {creds}"},
         data=data,
     )
-    
+
     results = res.json()
     assert res.status_code == 200
     assert results["message"] == "bulk data inserted"
