@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 async def zinc_is_up(ops_test: OpsTest, app_name="zinc-k8s"):
     address = await get_unit_ip(ops_test, app_name)
-    response = requests.get(f"http://{address}:4080")
+    response = requests.get(f"http://{address}:4080/version")
     return response.status_code == 200
 
 

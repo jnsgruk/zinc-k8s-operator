@@ -45,8 +45,13 @@ async def test_deploy(ops_test: OpsTest, zinc_charm):
 
 
 @pytest.mark.abort_on_fail
+@tenacity.retry(
+    wait=wait_exponential(multiplier=2, min=1, max=30),
+    stop=stop_after_attempt(10),
+    reraise=True,
+)
 async def test_application_is_up(ops_test: OpsTest):
-    assert zinc_is_up(ops_test, APP_NAME) is True
+    assert await zinc_is_up(ops_test, APP_NAME) is True
 
 
 @pytest.mark.abort_on_fail
@@ -65,16 +70,6 @@ async def test_application_service_port_patch(ops_test: OpsTest):
     client = Client()
     svc = client.get(Service, name=APP_NAME, namespace=ops_test.model_name)
     assert svc.spec.ports[0].port == 4080
-
-    # Now try to actually hit the service
-    status = await ops_test.model.get_status()  # noqa: F821
-    address = status["applications"][APP_NAME].public_address
-
-    url = f"http://{address}:4080"
-
-    logger.info("querying app address: %s", url)
-    response = requests.get(url)
-    assert response.status_code == 200
 
 
 async def test_can_auth_with_zinc(ops_test: OpsTest):

@@ -26,25 +26,27 @@ async def test_prometheus_scrape_create_relation(ops_test, zinc_charm):
     """Test that Zinc can be related with Prometheus over prometheus_scrape."""
     zinc_resources = {"zinc-image": METADATA["resources"]["zinc-image"]["upstream-source"]}
     await asyncio.gather(
-        ops_test.model.deploy(zinc_charm, resources=zinc_resources, application_name=ZINC_NAME),
-        ops_test.model.deploy("prometheus-k8s", channel="edge", application_name=PROMETHEUS_NAME),
+        ops_test.model.deploy(
+            zinc_charm, resources=zinc_resources, application_name=ZINC_NAME, trust=True
+        ),
+        ops_test.model.deploy(
+            "prometheus-k8s", channel="edge", application_name=PROMETHEUS_NAME, trust=True
+        ),
     )
     apps = [ZINC_NAME, PROMETHEUS_NAME]
     # Wait for the deployments to settle
     await ops_test.model.wait_for_idle(apps=apps, status="active")
-    # Check that the zinc API is up
-    assert await zinc_is_up(ops_test, ZINC_NAME) is True
-    # Crete the relation
+    # Create the relation
     await ops_test.model.add_relation(ZINC_NAME, PROMETHEUS_NAME)
     # Wait for the two apps to quiesce
     await ops_test.model.wait_for_idle(apps=apps, status="active")
 
 
 @pytest.mark.abort_on_fail
-async def test_loki_push_api_create_relation(ops_test, _):
+async def test_loki_push_api_create_relation(ops_test):
     """Test that Zinc can be related with Loki."""
     # Deploy Loki
-    await ops_test.model.deploy("loki-k8s", channel="edge", application_name=LOKI_NAME)
+    await ops_test.model.deploy("loki-k8s", channel="edge", application_name=LOKI_NAME, trust=True)
 
     apps = [ZINC_NAME, LOKI_NAME]
     # Wait for the deployments to settle
@@ -58,10 +60,12 @@ async def test_loki_push_api_create_relation(ops_test, _):
 
 
 @pytest.mark.abort_on_fail
-async def test_grafana_dashboard_create_relation(ops_test, _):
+async def test_grafana_dashboard_create_relation(ops_test):
     """Test that Zinc can be related with Grafana."""
     # Deploy Grafana
-    await ops_test.model.deploy("grafana-k8s", channel="edge", application_name=GRAFANA_NAME)
+    await ops_test.model.deploy(
+        "grafana-k8s", channel="edge", application_name=GRAFANA_NAME, trust=True
+    )
 
     apps = [ZINC_NAME, GRAFANA_NAME]
     # Wait for the deployments to settle
@@ -75,7 +79,7 @@ async def test_grafana_dashboard_create_relation(ops_test, _):
 
 
 @pytest.mark.abort_on_fail
-async def test_prometheus_scrape_relation_data(ops_test, _):
+async def test_prometheus_scrape_relation_data(ops_test):
     app_data, related_unit_data = await unit_data(
         ops_test, f"{PROMETHEUS_NAME}/0", "metrics-endpoint"
     )
