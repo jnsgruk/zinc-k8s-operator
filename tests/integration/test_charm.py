@@ -4,6 +4,7 @@
 
 
 import base64
+import gzip
 import json
 import logging
 import re
@@ -98,33 +99,25 @@ async def test_can_auth_with_zinc(ops_test: OpsTest):
     status = await ops_test.model.get_status()  # noqa: F821
     address = status["applications"][APP_NAME].public_address
 
-    # Some data to populate
-    data = {
-        "Athlete": "DEMTSCHENKO, Albert",
-        "City": "Turin",
-        "Country": "RUS",
-        "Discipline": "Luge",
-        "Event": "Singles",
-        "Gender": "Men",
-        "Medal": "Silver",
-        "Season": "winter",
-        "Sport": "Luge",
-        "Year": 2006,
-    }
+    # Load sample data from quickstart docs
+    # https://github.com/zinclabs/zincsearch-docs/blob/beca3d17e7d3da15cbf5abfffefffdcbb833758d/docs/quickstart.md?plain=1#L114
+    with gzip.open("./tests/integration/olympics.ndjson.gz",'r') as f:
+        data = f.read()
 
     # Encode the credentials for the API using the password from the charm action
     password = await _get_password(ops_test)
     creds = base64.b64encode(bytes(f"admin:{password}", "utf-8")).decode("utf-8")
 
     # We're going to send some data to the "games" index
-    res = requests.put(
-        url=f"http://{address}:4080/api/games/document",
+    res = requests.post(
+        url=f"http://{address}:4080/api/_bulk",
         headers={"Content-type": "application/json", "Authorization": f"Basic {creds}"},
-        data=json.dumps(data),
+        data=data,
     )
-    print(res)
+    
     results = res.json()
     assert res.status_code == 200
-    assert "id" in results.keys()
+    assert results["message"] == "bulk data inserted"
+    assert results["record_count"] == 36935
 
     logger.info("successfully queried the Zinc API, got response: '%s'", str(res.json()))
