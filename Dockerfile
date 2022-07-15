@@ -1,4 +1,4 @@
-FROM public.ecr.aws/zinclabs/zinc:0.2.5 AS builder
+FROM public.ecr.aws/zinclabs/zinc:0.2.6 AS builder
 
 FROM ubuntu:latest
 COPY --from=builder /go/bin/zinc /go/bin/zinc
