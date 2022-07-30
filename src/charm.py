@@ -43,6 +43,11 @@ class ZincCharm(CharmBase):
         self._grafana_dashboards = GrafanaDashboardProvider(
             self, relation_name="grafana-dashboard"
         )
+        self._profiling = MetricsEndpointProvider(
+            self,
+            relation_name="profiling-endpoint",
+            jobs=[{"static_configs": [{"targets": ["*:4080"]}]}],
+        )
 
     def _on_zinc_pebble_ready(self, event: WorkloadEvent):
         """Define and start a workload using the Pebble API."""
@@ -79,6 +84,8 @@ class ZincCharm(CharmBase):
                             "ZINC_FIRST_ADMIN_USER": "admin",
                             "ZINC_FIRST_ADMIN_PASSWORD": self._stored.initial_admin_password,
                             "ZINC_PROMETHEUS_ENABLE": True,
+                            "ZINC_TELEMETRY": False,
+                            "ZINC_PROFILER": True,
                         },
                     }
                 },

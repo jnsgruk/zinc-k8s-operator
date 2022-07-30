@@ -10,8 +10,8 @@ from pytest import mark
 logger = logging.getLogger(__name__)
 
 ZINC = "zinc-k8s"
-O11Y_CHARMS = ["prometheus-k8s", "grafana-k8s", "loki-k8s"]
-O11Y_RELS = ["metrics-endpoint", "grafana-dashboard", "logging"]
+O11Y_CHARMS = ["prometheus-k8s", "grafana-k8s", "loki-k8s", "parca-k8s"]
+O11Y_RELS = ["metrics-endpoint", "grafana-dashboard", "logging", "profiling-endpoint"]
 ALL_CHARMS = [ZINC, *O11Y_CHARMS]
 
 
@@ -22,15 +22,16 @@ async def test_deploy_charms(ops_test, zinc_charm, zinc_oci_image):
         ops_test.model.deploy("prometheus-k8s", channel="edge", trust=True),
         ops_test.model.deploy("loki-k8s", channel="edge", trust=True),
         ops_test.model.deploy("grafana-k8s", channel="edge", trust=True),
+        ops_test.model.deploy("parca-k8s", channel="edge", trust=True),
         ops_test.model.wait_for_idle(apps=ALL_CHARMS, status="active", timeout=1000),
     )
 
 
 @mark.abort_on_fail
-@mark.parametrize("remote", O11Y_CHARMS)
-async def test_create_relation(ops_test, remote):
+@mark.parametrize("endpoint,remote", list(zip(O11Y_RELS, O11Y_CHARMS)))
+async def test_create_relation(ops_test, endpoint, remote):
     # Create the relation
-    await ops_test.model.add_relation(ZINC, remote)
+    await ops_test.model.add_relation(f"{ZINC}:{endpoint}", remote)
     # Wait for the two apps to quiesce
     await ops_test.model.wait_for_idle(apps=[ZINC, remote], status="active", timeout=1000)
 

@@ -77,6 +77,8 @@ class TestCharm(unittest.TestCase):
                             "ZINC_FIRST_ADMIN_USER": "admin",
                             "ZINC_FIRST_ADMIN_PASSWORD": "password",
                             "ZINC_PROMETHEUS_ENABLE": True,
+                            "ZINC_TELEMETRY": False,
+                            "ZINC_PROFILER": True,
                         },
                     }
                 },
