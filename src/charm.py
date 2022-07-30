@@ -4,9 +4,11 @@
 
 """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
+import json
 import logging
 import secrets
 import string
+import urllib.request
 
 from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
@@ -17,6 +19,7 @@ from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus
 from ops.pebble import Layer
+from tenacity import retry, stop_after_delay
 
 logger = logging.getLogger(__name__)
 
@@ -32,17 +35,27 @@ class ZincCharm(CharmBase):
         self._stored.set_default(initial_admin_password="")
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
+        self.framework.observe(self.on.update_status, self._on_update_status)
 
+        # Patch the juju created Kubernetes service to contain the right ports
         self._service_patcher = KubernetesServicePatch(self, [(self.app.name, 4080, 4080)])
+
+        # Provide ability for Zinc to be scraped by Prometheus using prometheus_scrape
         self._scraping = MetricsEndpointProvider(
             self,
             relation_name="metrics-endpoint",
             jobs=[{"static_configs": [{"targets": ["*:4080"]}]}],
         )
+
+        # Enable log forwarding for Loki and other charms that implement loki_push_api
         self._logging = LogProxyConsumer(self, relation_name="logging", log_files=[self._log_path])
+
+        # Provide grafana dashboards over a relation interface
         self._grafana_dashboards = GrafanaDashboardProvider(
             self, relation_name="grafana-dashboard"
         )
+
+        # Enable profiling over a relation with Parca
         self._profiling = MetricsEndpointProvider(
             self,
             relation_name="profiling-endpoint",
@@ -60,8 +73,14 @@ class ZincCharm(CharmBase):
 
         # Define an initial Pebble layer configuration
         container.add_layer("zinc", self._pebble_layer, combine=True)
-        container.autostart()
+        container.replan()
+        self.unit.set_workload_version(self.version)
+
         self.unit.status = ActiveStatus()
+
+    def _on_update_status(self, _):
+        """Update the status of the application."""
+        self.unit.set_workload_version(self.version)
 
     def _on_get_admin_password(self, event: ActionEvent) -> None:
         """Returns the initial generated password for the admin user as an action response."""
@@ -91,6 +110,27 @@ class ZincCharm(CharmBase):
                 },
             }
         )
+
+    @property
+    def version(self) -> str:
+        """Reports the current Zinc version."""
+        container = self.unit.get_container("zinc")
+        if container.can_connect() and container.get_services("zinc"):
+            try:
+                return self._request_version()
+            # Catching Exception is not ideal, but we don't care much for the error here, and just
+            # default to setting a blank version since there isn't much the admin can do!
+            except Exception as e:
+                logger.warning("unable to get version from API: %s", str(e))
+                logger.debug(e, exc_info=True)
+                return ""
+        return ""
+
+    @retry(stop=stop_after_delay(10))
+    def _request_version(self) -> str:
+        """Helper for fetching the version from the running workload using the Zinc API."""
+        res = urllib.request.urlopen("http://localhost:4080/version")
+        return json.loads(res.read().decode())["version"]
 
     def _generate_password(self) -> str:
         """Generates a random 24 character password."""

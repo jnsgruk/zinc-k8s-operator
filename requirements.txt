@@ -1,4 +1,5 @@
-git+https://github.com/canonical/operator/#egg=ops
+ops >= 1.5.0
 lightkube
 lightkube-models
+tenacity
 

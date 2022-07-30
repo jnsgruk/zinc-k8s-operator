@@ -3,7 +3,7 @@
 
 import re
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 from ops.model import ActiveStatus
 from ops.pebble import Layer
@@ -14,6 +14,7 @@ from charm import ZincCharm
 unittest.TestCase.maxDiff = None
 
 
+@patch("charm.ZincCharm._request_version", lambda x: "0.2.6")
 class TestCharm(unittest.TestCase):
     @patch("charm.KubernetesServicePatch", lambda x, y: None)
     def setUp(self):
@@ -41,7 +42,19 @@ class TestCharm(unittest.TestCase):
         # Check the service was started
         service = self.harness.model.unit.get_container("zinc").get_service("zinc")
         self.assertTrue(service.is_running())
+
+        # Check workload version
+        self.assertEqual(self.harness.get_workload_version(), "0.2.6")
         self.assertEqual(self.harness.model.unit.status, ActiveStatus())
+
+    def test_update_status(self):
+        self.assertEqual(self.harness.get_workload_version(), None)
+        self.harness.container_pebble_ready("zinc")
+        self.assertEqual(self.harness.get_workload_version(), "0.2.6")
+
+        with patch("charm.ZincCharm.version", new_callable=PropertyMock(return_value="0.4.0")):
+            self.harness.charm.on.update_status.emit()
+            self.assertEqual(self.harness.get_workload_version(), "0.4.0")
 
     @patch("charm.ZincCharm._generate_password")
     def test_get_admin_password_action(self, generate):
