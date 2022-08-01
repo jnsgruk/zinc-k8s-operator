@@ -26,8 +26,9 @@ UNIT_0 = f"{ZINC}/0"
 async def _get_password(ops_test: OpsTest) -> str:
     unit = ops_test.model.applications[ZINC].units[0]
     action = await unit.run_action("get-admin-password")
-    action = await action.wait()
-    return action.results["admin-password"]
+    await action.wait()
+    result = await ops_test.model.get_action_output(action.id)
+    return result["admin-password"]
 
 
 @mark.abort_on_fail

@@ -18,10 +18,10 @@ async def zinc_charm(ops_test: OpsTest):
 
 
 @fixture(scope="module")
-async def zinc_metadata(ops_test: OpsTest):
+def zinc_metadata(ops_test: OpsTest):
     return yaml.safe_load(Path("./metadata.yaml").read_text())
 
 
 @fixture(scope="module")
-async def zinc_oci_image(ops_test: OpsTest, zinc_metadata):
+def zinc_oci_image(ops_test: OpsTest, zinc_metadata):
     return zinc_metadata["resources"]["zinc-image"]["upstream-source"]

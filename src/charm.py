@@ -14,6 +14,7 @@ from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
+from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
 from ops.charm import ActionEvent, CharmBase, WorkloadEvent
 from ops.framework import StoredState
 from ops.main import main
@@ -61,6 +62,8 @@ class ZincCharm(CharmBase):
             relation_name="profiling-endpoint",
             jobs=[{"static_configs": [{"targets": ["*:4080"]}]}],
         )
+
+        self._ingress = IngressPerAppRequirer(self, port=4080)
 
     def _on_zinc_pebble_ready(self, event: WorkloadEvent):
         """Define and start a workload using the Pebble API."""
