@@ -1,4 +1,5 @@
 ops >= 1.5.0
+jsonschema
 lightkube
 lightkube-models
 tenacity
