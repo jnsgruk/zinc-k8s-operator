@@ -18,7 +18,9 @@ ALL_CHARMS = [ZINC, *O11Y_CHARMS]
 @mark.abort_on_fail
 async def test_deploy_charms(ops_test, zinc_charm, zinc_oci_image):
     await asyncio.gather(
-        ops_test.model.deploy(zinc_charm, resources={"zinc-image": zinc_oci_image}, trust=True),
+        ops_test.model.deploy(
+            await zinc_charm, resources={"zinc-image": zinc_oci_image}, trust=True
+        ),
         ops_test.model.deploy("prometheus-k8s", channel="edge", trust=True),
         ops_test.model.deploy("loki-k8s", channel="edge", trust=True),
         ops_test.model.deploy("grafana-k8s", channel="edge", trust=True),
