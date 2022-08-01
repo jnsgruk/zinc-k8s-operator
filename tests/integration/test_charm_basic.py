@@ -3,9 +3,9 @@
 # See LICENSE file for licensing details.
 
 
+import asyncio
 import base64
 import gzip
-import logging
 import re
 
 import requests
@@ -15,12 +15,9 @@ from pytest import mark
 from pytest_operator.plugin import OpsTest
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
-from tenacity.wait import wait_exponential
-
-logger = logging.getLogger(__name__)
+from tenacity.wait import wait_exponential as wexp
 
 ZINC = "zinc"
-UNIT_0 = f"{ZINC}/0"
 
 
 async def _get_password(ops_test: OpsTest) -> str:
@@ -33,32 +30,27 @@ async def _get_password(ops_test: OpsTest) -> str:
 
 @mark.abort_on_fail
 async def test_deploy(ops_test: OpsTest, zinc_charm, zinc_oci_image):
-    await ops_test.model.deploy(
-        zinc_charm,
-        resources={"zinc-image": zinc_oci_image},
-        application_name=ZINC,
-        trust=True,
+    await asyncio.gather(
+        ops_test.model.deploy(
+            await zinc_charm,
+            application_name=ZINC,
+            resources={"zinc-image": zinc_oci_image},
+            trust=True,
+        ),
+        ops_test.model.wait_for_idle(apps=[ZINC], status="active", timeout=1000),
     )
-    # issuing dummy update_status just to trigger an event
-    async with ops_test.fast_forward():
-        await ops_test.model.wait_for_idle(apps=[ZINC], status="active", timeout=1000)
-        assert ops_test.model.applications[ZINC].units[0].workload_status == "active"
 
 
 @mark.abort_on_fail
-@retry(
-    wait=wait_exponential(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True
-)
+@retry(wait=wexp(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True)
 async def test_application_is_up(ops_test: OpsTest):
     status = await ops_test.model.get_status()  # noqa: F821
-    address = status["applications"][ZINC]["units"][UNIT_0]["address"]
+    address = status["applications"][ZINC]["public-address"]
     response = requests.get(f"http://{address}:4080/version")
     return response.status_code == 200
 
 
-@retry(
-    wait=wait_exponential(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True
-)
+@retry(wait=wexp(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True)
 async def test_application_service_port_patch(ops_test: OpsTest):
     # Check the port has actually been patched
     client = Client()
@@ -72,13 +64,11 @@ async def test_get_admin_password_action(ops_test: OpsTest):
     assert re.match("[A-Za-z0-9]{24}", password)
 
 
-@retry(
-    wait=wait_exponential(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True
-)
+@retry(wait=wexp(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True)
 async def test_can_auth_with_zinc(ops_test: OpsTest):
     # Now try to actually hit the service
     status = await ops_test.model.get_status()  # noqa: F821
-    address = status["applications"][ZINC]["units"][UNIT_0]["address"]
+    address = status["applications"][ZINC]["public-address"]
 
     # Load sample data from quickstart docs
     # https://github.com/zinclabs/zincsearch-docs/blob/beca3d17e7d3da15cbf5abfffefffdcbb833758d/docs/quickstart.md?plain=1#L114
@@ -101,5 +91,3 @@ async def test_can_auth_with_zinc(ops_test: OpsTest):
     assert res.status_code == 200
     assert results["message"] == "bulk data inserted"
     assert results["record_count"] == 36935
-
-    logger.info("successfully queried the Zinc API, got response: '%s'", str(res.json()))
