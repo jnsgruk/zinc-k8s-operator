@@ -13,6 +13,7 @@ import urllib.request
 from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
+from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
 from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
 from ops.charm import ActionEvent, CharmBase, WorkloadEvent
@@ -57,10 +58,8 @@ class ZincCharm(CharmBase):
         )
 
         # Enable profiling over a relation with Parca
-        self._profiling = MetricsEndpointProvider(
-            self,
-            relation_name="profiling-endpoint",
-            jobs=[{"static_configs": [{"targets": ["*:4080"]}]}],
+        self._profiling = ProfilingEndpointProvider(
+            self, jobs=[{"static_configs": [{"targets": ["*:4080"]}]}]
         )
 
         self._ingress = IngressPerAppRequirer(self, port=4080)

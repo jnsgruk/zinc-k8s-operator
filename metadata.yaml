@@ -35,7 +35,7 @@ provides:
   metrics-endpoint:
     interface: prometheus_scrape
   profiling-endpoint:
-    interface: prometheus_scrape
+    interface: parca_scrape
   grafana-dashboard:
     interface: grafana_dashboard
 
