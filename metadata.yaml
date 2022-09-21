@@ -29,7 +29,7 @@ resources:
     type: oci-image
     description: OCI image for zinc
     # Included for simplicity in integration tests
-    upstream-source: jnsgruk/zinc:0.3.2
+    upstream-source: jnsgruk/zinc:0.3.3
 
 provides:
   metrics-endpoint:
