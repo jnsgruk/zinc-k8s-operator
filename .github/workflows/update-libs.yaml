@@ -12,15 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Check libs
-        uses: canonical/charming-actions/check-libraries@2.0.0
-        with:
-          credentials: "${{ secrets.CHARMHUB_TOKEN }}"
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          sudo snap install charmcraft --classic --channel latest/stable
+          charmcraft fetch-lib
+        env:
+          CHARMCRAFT_AUTH: "${{ secrets.CHARMHUB_TOKEN }}"
 
       - uses: tibdex/github-app-token@v1
         id: generate-token
