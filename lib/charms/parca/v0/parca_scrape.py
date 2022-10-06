@@ -45,7 +45,7 @@ list of dictionaries where each dictionary represents one `<scrape_config>` obje
 the Parca documentation. The currently supported configuration subset is: `job_name`,
 `static_configs`
 
-Suppose it is required to change the port on which scraped metrics are exposed to 8000. This may be
+Suppose it is required to change the port on which scraped profiles are exposed to 8000. This may be
 done by providing the following data structure as the value of `jobs`.
 
 ```python
@@ -55,7 +55,7 @@ done by providing the following data structure as the value of `jobs`.
 The wildcard ("*") host specification implies that the scrape targets will automatically be set to
 the host addresses advertised by each unit of the consumer charm.
 
-It is also possible to change the metrics path and scrape multiple ports, for example
+It is also possible to change the profile path and scrape multiple ports, for example
 
 ```
 [{"static_configs": [{"targets": ["*:8000", "*:8081"]}]}]
@@ -185,7 +185,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 logger = logging.getLogger(__name__)
 
@@ -385,17 +385,19 @@ class ProfilingEndpointConsumer(Object):
         self._charm = charm
         self._relation_name = relation_name
         events = self._charm.on[relation_name]
-        self.framework.observe(events.relation_changed, self._on_metrics_provider_relation_changed)
         self.framework.observe(
-            events.relation_departed, self._on_metrics_provider_relation_departed
+            events.relation_changed, self.on_profiling_provider_relation_changed
+        )
+        self.framework.observe(
+            events.relation_departed, self._on_profiling_provider_relation_departed
         )
 
-    def _on_metrics_provider_relation_changed(self, event):
-        """Handle changes with related metrics providers.
+    def on_profiling_provider_relation_changed(self, event):
+        """Handle changes with related profiling providers.
 
-        Anytime there are changes in relations between Parca and metrics provider charms the Parca
-        charm is informed, through a `TargetsChangedEvent` event. The Parca charm can then choose
-        to update its scrape configuration.
+        Anytime there are changes in relations between Parca and profiling provider charms the
+        Parca charm is informed, through a `TargetsChangedEvent` event. The Parca charm can then
+        choose to update its scrape configuration.
 
         Args:
             event: a `CharmEvent` resulting in the Parca charm updating its scrape configuration
@@ -404,7 +406,7 @@ class ProfilingEndpointConsumer(Object):
 
         self.on.targets_changed.emit(relation_id=rel_id)
 
-    def _on_metrics_provider_relation_departed(self, event):
+    def _on_profiling_provider_relation_departed(self, event):
         """Update job config when a profiling provider departs.
 
         When a profiling provider departs the Parca charm is informed through a
@@ -476,7 +478,7 @@ class ProfilingEndpointConsumer(Object):
         return labeled_job_configs
 
     def _relation_hosts(self, relation) -> dict:
-        """Fetch unit names and address of all metrics provider units for a single relation.
+        """Fetch unit names and address of all profiling provider units for a single relation.
 
         Args:
             relation: An `ops.model.Relation` object for which the unit name to
@@ -623,7 +625,7 @@ class ProfilingEndpointConsumer(Object):
         Args:
             unit_name: a string representing the unit name of the wildcard host.
             host_address: a string representing the address of the wildcard host.
-            ports: list of ports on which this wildcard host exposes its metrics.
+            ports: list of ports on which this wildcard host exposes its profiles.
             labels: a dictionary of labels provided by `ProfilingEndpointProvider` intended to be
                 associated with this wildcard host.
             scrape_metadata: scrape related metadata provided by `ProfilingEndpointProvider`.
@@ -674,7 +676,7 @@ class ProfilingEndpointProvider(Object):
 
         Scrape targets provided by `ProfilingEndpointProvider` can be customized when instantiating
         this object. For example in the case of a charm exposing the profiling endpoint for each of
-        its units on port 8080 and the `/metrics` path, the `ProfilingEndpointProvider` can be
+        its units on port 8080, the `ProfilingEndpointProvider` can be
         instantiated as follows:
 
             self.profiling_endpoint_provider = ProfilingEndpointProvider(
@@ -768,7 +770,7 @@ class ProfilingEndpointProvider(Object):
     def _set_unit_ip(self, _):
         """Set unit host address.
 
-        Each time a metrics provider charm container is restarted it updates its own host address
+        Each time a profiling provider charm container is restarted it updates its own host address
         in the unit relation data for the Parca charm. The only argument specified is an event and
         it is ignored.
         """
