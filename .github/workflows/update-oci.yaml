@@ -1,4 +1,4 @@
-name: Auto Update
+name: Auto Update OCI Image
 on:
   # Manual trigger
   workflow_dispatch:
