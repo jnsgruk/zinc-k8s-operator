@@ -122,7 +122,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(up{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\"}) by (juju_unit)",
+          "expr": "sum(up{juju_model=\"$juju_model\", juju_model_uuid=\"$juju_model_uuid\", juju_application=\"$juju_application\",juju_unit!=\"\"}) by (juju_unit)",
           "instant": true,
           "interval": "",
           "legendFormat": "",
