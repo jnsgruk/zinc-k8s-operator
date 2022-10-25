@@ -8,7 +8,7 @@ on:
 
 jobs:
   check-upstream:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       release: ${{steps.check.outputs.release}}
     steps:
@@ -37,7 +37,7 @@ jobs:
           fi
 
   create-pr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: check-upstream
     if: ${{ needs.check-upstream.outputs.release != '' }}
     steps:
