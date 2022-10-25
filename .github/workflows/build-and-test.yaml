@@ -57,8 +57,8 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
           provider: microk8s
-          channel: 1.25-strict/stable
-          juju-channel: 3.0/stable
-          microk8s-group: snap_microk8s
+          juju-channel: 2.9/edge
+          # channel: 1.25-strict/stable
+          # microk8s-group: snap_microk8s
       - name: Run integration tests
         run: tox -e integration
