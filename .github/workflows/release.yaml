@@ -10,6 +10,8 @@ on:
       - ".github/workflows/renovate.yaml"
       - ".github/workflows/update-libs.yaml"
       - ".github/workflows/update-oci.yaml"
+      - ".github/workflows/publish-oci.yaml"
+      - ".github/workflows/build-and-test.yaml"
       - ".gitignore"
 
 jobs:
