@@ -1,6 +1,8 @@
 name: Publish OCI Image
 on:
   push:
+    branches:
+      - main
     paths:
       - "Dockerfile"
 jobs:
@@ -24,7 +26,7 @@ jobs:
         id: get_version
         run: |
           version="$(grep -Po "zinc:\K[0-9]+\.[0-9]+\.[0-9]+" Dockerfile)"
-          echo ::set-output name=VERSION::$version
+          echo "VERSION=$version" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v3
@@ -52,12 +54,12 @@ jobs:
         id: cpr
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          commit-message: "chore(deps): bump zinc container image to `jnsgruk/zinc:${{ needs.check-upstream.outputs.release }}`"
+          commit-message: "chore(deps): bump zinc container image to `jnsgruk/zinc:${{ steps.get_version.outputs.release }}`"
           committer: "Github Actions <github-actions@github.com>"
           author: "Github Actions <github-actions@github.com>"
-          title: "Update container image to `jnsgruk/zinc:${{ needs.check-upstream.outputs.release }}`"
-          body: "Update container image to `jnsgruk/zinc:${{ needs.check-upstream.outputs.release }}`"
-          branch: "auto-container-${{ needs.check-upstream.outputs.release }}"
+          title: "Update container image to `jnsgruk/zinc:${{ steps.get_version.outputs.release }}`"
+          body: "Update container image to `jnsgruk/zinc:${{ steps.get_version.outputs.release }}`"
+          branch: "auto-container-${{ steps.get_version.outputs.release }}"
           delete-branch: true
           reviewers: jnsgruk
           assignees: jnsgruk

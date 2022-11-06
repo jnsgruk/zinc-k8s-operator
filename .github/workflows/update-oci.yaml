@@ -30,7 +30,7 @@ jobs:
           CURRENT="v$(grep -Po "zinc:\K[0-9]+\.[0-9]+\.[0-9]+" Dockerfile)"
 
           if [[ "$CURRENT" < "$LATEST" ]]; then
-            echo "::set-output name=release::${LATEST}"
+            echo "release=$LATEST" >> $GITHUB_OUTPUT
             echo "New upstream release '$LATEST' found"
           else
             echo "No new upstream release found"
@@ -49,7 +49,7 @@ jobs:
           # Grab the output from the last job
           LATEST="${{ needs.check-upstream.outputs.release }}"
           # Update the version (strip the leading 'v' from the LATEST version)
-          sed "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${LATEST/v/}/g" Dockerfile
+          sed -i "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${LATEST/v/}/g" Dockerfile
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@v1
