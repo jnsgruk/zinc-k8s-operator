@@ -21,9 +21,9 @@ async def test_deploy_charms(ops_test, zinc_charm, zinc_oci_image):
         ops_test.model.deploy(
             await zinc_charm, resources={"zinc-image": zinc_oci_image}, trust=True
         ),
-        ops_test.model.deploy("prometheus-k8s", channel="edge", trust=True),
-        ops_test.model.deploy("loki-k8s", channel="edge", trust=True),
-        ops_test.model.deploy("grafana-k8s", channel="edge", trust=True),
+        ops_test.model.deploy("prometheus-k8s", channel="stable", trust=True),
+        ops_test.model.deploy("loki-k8s", channel="stable", trust=True),
+        ops_test.model.deploy("grafana-k8s", channel="stable", trust=True),
         ops_test.model.deploy("parca-k8s", channel="edge", trust=True),
         ops_test.model.wait_for_idle(apps=ALL_CHARMS, status="active", timeout=1000),
     )
