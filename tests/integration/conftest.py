@@ -7,7 +7,7 @@ import yaml
 from pytest import fixture
 from pytest_operator.plugin import OpsTest
 
-from .. import ZINC
+from . import ZINC
 
 logger = logging.getLogger(__name__)
 
