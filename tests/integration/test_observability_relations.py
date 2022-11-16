@@ -7,20 +7,19 @@ import logging
 
 from pytest import mark
 
+from . import ZINC
+
 logger = logging.getLogger(__name__)
 
-ZINC = "zinc-k8s"
 O11Y_CHARMS = ["prometheus-k8s", "grafana-k8s", "loki-k8s", "parca-k8s"]
 O11Y_RELS = ["metrics-endpoint", "grafana-dashboard", "logging", "profiling-endpoint"]
 ALL_CHARMS = [ZINC, *O11Y_CHARMS]
 
 
 @mark.abort_on_fail
-async def test_deploy_charms(ops_test, zinc_charm, zinc_oci_image):
+async def test_deploy_charms(ops_test, zinc_deploy_kwargs):
     await asyncio.gather(
-        ops_test.model.deploy(
-            await zinc_charm, resources={"zinc-image": zinc_oci_image}, trust=True
-        ),
+        ops_test.model.deploy(**await zinc_deploy_kwargs),
         ops_test.model.deploy("prometheus-k8s", channel="stable", trust=True),
         ops_test.model.deploy("loki-k8s", channel="stable", trust=True),
         ops_test.model.deploy("grafana-k8s", channel="stable", trust=True),

@@ -17,7 +17,7 @@ from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential as wexp
 
-ZINC = "zinc"
+from . import ZINC
 
 
 async def _get_password(ops_test: OpsTest) -> str:
@@ -29,14 +29,9 @@ async def _get_password(ops_test: OpsTest) -> str:
 
 
 @mark.abort_on_fail
-async def test_deploy(ops_test: OpsTest, zinc_charm, zinc_oci_image):
+async def test_deploy(ops_test: OpsTest, zinc_deploy_kwargs):
     await asyncio.gather(
-        ops_test.model.deploy(
-            await zinc_charm,
-            application_name=ZINC,
-            resources={"zinc-image": zinc_oci_image},
-            trust=True,
-        ),
+        ops_test.model.deploy(**await zinc_deploy_kwargs),
         ops_test.model.wait_for_idle(apps=[ZINC], status="active", timeout=1000),
     )
 

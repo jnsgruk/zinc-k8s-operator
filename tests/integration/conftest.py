@@ -7,21 +7,30 @@ import yaml
 from pytest import fixture
 from pytest_operator.plugin import OpsTest
 
+from .. import ZINC
+
 logger = logging.getLogger(__name__)
 
 
 @fixture(scope="module")
-async def zinc_charm(ops_test: OpsTest):
-    """Zinc charm used for integration testing."""
-    charm = await ops_test.build_charm(".")
-    return charm
-
-
-@fixture(scope="module")
-def zinc_metadata(ops_test: OpsTest):
-    return yaml.safe_load(Path("./metadata.yaml").read_text())
-
-
-@fixture(scope="module")
-def zinc_oci_image(ops_test: OpsTest, zinc_metadata):
-    return zinc_metadata["resources"]["zinc-image"]["upstream-source"]
+async def zinc_deploy_kwargs(ops_test: OpsTest, request):
+    zinc_metadata = yaml.safe_load(Path("./metadata.yaml").read_text())
+    zinc_channel = request.config.getoption("channel", default=None)
+    build_from_source = zinc_channel is None
+    if build_from_source:
+        charm_path = await ops_test.build_charm(".")
+        zinc_oci_image = zinc_metadata["resources"]["zinc-image"]["upstream-source"]
+        return {
+            "entity_url": charm_path,
+            "application_name": ZINC,
+            "resources": {"zinc-image": zinc_oci_image},
+            "trust": True,
+        }
+    else:
+        logger.info(f"Using zinc from charmhub with channel {zinc_channel}")
+        return {
+            "entity_url": "ch:zinc-k8s",
+            "application_name": ZINC,
+            "channel": zinc_channel,
+            "trust": True,
+        }
