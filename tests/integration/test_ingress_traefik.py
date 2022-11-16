@@ -8,22 +8,18 @@ import json
 import pytest
 import requests
 
+from . import ZINC
+
 TRAEFIK = "traefik-k8s"
-ZINC = "zinc-k8s"
 
 
 @pytest.mark.abort_on_fail
-async def test_ingress_traefik_k8s(ops_test, zinc_charm, zinc_oci_image):
+async def test_ingress_traefik_k8s(ops_test, zinc_deploy_kwargs):
     """Test that Zinc can be related with Traefik for ingress."""
     apps = [ZINC, TRAEFIK]
 
     await asyncio.gather(
-        ops_test.model.deploy(
-            await zinc_charm,
-            application_name=ZINC,
-            resources={"zinc-image": zinc_oci_image},
-            trust=True,
-        ),
+        ops_test.model.deploy(**await zinc_deploy_kwargs),
         ops_test.model.deploy(
             TRAEFIK,
             application_name=TRAEFIK,
