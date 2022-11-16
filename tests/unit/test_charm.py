@@ -5,6 +5,7 @@ import re
 import unittest
 from unittest.mock import Mock, PropertyMock, patch
 
+import ops.testing
 from ops.model import ActiveStatus
 from ops.pebble import Layer
 from ops.testing import Harness
@@ -12,6 +13,7 @@ from ops.testing import Harness
 from charm import ZincCharm
 
 unittest.TestCase.maxDiff = None
+ops.testing.SIMULATE_CAN_CONNECT = True
 
 
 @patch("charm.ZincCharm._request_version", lambda x: "0.2.6")
@@ -24,6 +26,7 @@ class TestCharm(unittest.TestCase):
 
     @patch("charm.ZincCharm._generate_password", lambda x: "password")
     def test_zinc_pebble_ready(self):
+        self.harness.set_can_connect("zinc", True)
         # Check the initial Pebble plan is empty
         initial_plan = self.harness.get_container_pebble_plan("zinc")
         self.assertEqual(initial_plan.to_yaml(), "{}\n")
