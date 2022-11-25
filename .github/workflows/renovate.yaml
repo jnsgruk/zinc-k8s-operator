@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3.1.0
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v34.21.2
+        uses: renovatebot/github-action@cd3254b1f914ad04188de04493cdbf708593e92d # v34.34.0
         with:
           configurationFile: .github/renovate-config.js
           token: ${{ github.token }}
