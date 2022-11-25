@@ -15,12 +15,12 @@
   "packageRules": [
     {
       "matchPackageNames": ["^renovatebot/github-action"],
-      "schedule": ["weekly"]
+      "extends": ["schedule:weekly"]
     },
     {
       "matchPaths": ["tox.ini"],
       "groupName": "testing deps",
-      "schedule": ["weekly"]
+      "extends": ["schedule:weekly"]
     }
   ],
   "regexManagers": [
