@@ -10,6 +10,10 @@ on:
       - ".gitignore"
       - "Dockerfile"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     uses: ./.github/workflows/build-and-test.yaml
