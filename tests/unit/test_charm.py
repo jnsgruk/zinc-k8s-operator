@@ -6,11 +6,10 @@ import unittest
 from unittest.mock import Mock, PropertyMock, patch
 
 import ops.testing
+from charm import ZincCharm
 from ops.model import ActiveStatus
 from ops.pebble import Layer
 from ops.testing import Harness
-
-from charm import ZincCharm
 
 unittest.TestCase.maxDiff = None
 ops.testing.SIMULATE_CAN_CONNECT = True
