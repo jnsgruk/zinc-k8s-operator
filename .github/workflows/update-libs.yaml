@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3
         with:
           fetch-depth: 0
 
@@ -23,14 +23,14 @@ jobs:
         env:
           CHARMCRAFT_AUTH: "${{ secrets.CHARMHUB_TOKEN }}"
 
-      - uses: tibdex/github-app-token@v1
+      - uses: tibdex/github-app-token@021a2405c7f990db57f5eae5397423dcc554159c # v1
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_KEY }}
 
       - name: Create a PR for local changes
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@331d02c7e2104af23ad5974d4d5cbc58a3e6dc77 # v4
         id: cpr
         with:
           token: ${{ steps.generate-token.outputs.token }}
