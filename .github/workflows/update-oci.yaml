@@ -14,13 +14,13 @@ jobs:
     steps:
       # Get the latest release of zinclabs/zinc in format 'vX.X.X'
       - id: latest-upstream
-        uses: pozetroninc/github-action-get-latest-release@v0.6.0
+        uses: pozetroninc/github-action-get-latest-release@57753c3124f4365ae77b2b8111cae1f71195572a # v0.6.0
         with:
           repository: zinclabs/zinc
           excludes: prerelease, draft
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3
 
       - id: check
         name: Check for new releases
@@ -42,7 +42,7 @@ jobs:
     if: ${{ needs.check-upstream.outputs.release != '' }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3
 
       - name: Update version
         run: |
@@ -52,14 +52,14 @@ jobs:
           sed -i "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${LATEST/v/}/g" Dockerfile
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
-      - uses: tibdex/github-app-token@v1
+      - uses: tibdex/github-app-token@021a2405c7f990db57f5eae5397423dcc554159c # v1
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_KEY }}
 
       - name: Create a PR for local changes
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@331d02c7e2104af23ad5974d4d5cbc58a3e6dc77 # v4
         id: cpr
         with:
           token: ${{ steps.generate-token.outputs.token }}
