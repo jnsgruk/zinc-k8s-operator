@@ -4,6 +4,7 @@
     "config:base",
     ":disableDependencyDashboard",
     ":automergeDigest",
+    ":automergePatch",
     ":automergeMinor",
     ":rebaseStalePrs",
     ":semanticCommits",
@@ -12,15 +13,26 @@
     "helpers:pinGitHubActionDigests",
     "regexManagers:dockerfileVersions"
   ],
+  "automergeType": "branch",
   "packageRules": [
     {
-      "matchPackageNames": ["^renovatebot/github-action"],
-      "extends": ["schedule:weekly"]
+      "groupName": "github actions",
+      "matchManagers": ["github-actions"],
+      "automerge": true
     },
     {
-      "matchPaths": ["tox.ini"],
       "groupName": "testing deps",
-      "extends": ["schedule:weekly"]
+      "matchFiles": ["tox.ini"],
+      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
+      "extends": ["schedule:weekly"],
+      "automerge": true
+    },
+    {
+      "groupName": "renovate packages",
+      "matchSourceUrlPrefixes": ["https://github.com/renovatebot/"],
+      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
+      "extends": ["schedule:weekly"],
+      "automerge": true
     }
   ],
   "regexManagers": [

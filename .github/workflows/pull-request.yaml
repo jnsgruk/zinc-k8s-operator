@@ -9,6 +9,9 @@ on:
       - ".github/workflows/update-oci.yaml"
       - ".gitignore"
       - "Dockerfile"
+    push:
+      branches:
+        - "renovate/*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
