@@ -63,8 +63,8 @@ class ZincCharm(CharmBase):
                         "startup": "enabled",
                         "environment": {
                             "DATA_PATH": "/go/bin/data",
-                            "FIRST_ADMIN_USER": "admin",
-                            "FIRST_ADMIN_PASSWORD": self._stored.initial_admin_password,
+                            "ZINC_FIRST_ADMIN_USER": "admin",
+                            "ZINC_FIRST_ADMIN_PASSWORD": self._stored.initial_admin_password,
                         },
                     }
                 },
