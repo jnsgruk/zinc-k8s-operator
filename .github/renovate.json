@@ -24,14 +24,12 @@
       "groupName": "testing deps",
       "matchFiles": ["tox.ini"],
       "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
-      "extends": ["schedule:weekly"],
       "automerge": true
     },
     {
       "groupName": "renovate packages",
       "matchSourceUrlPrefixes": ["https://github.com/renovatebot/"],
       "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
-      "extends": ["schedule:weekly"],
       "automerge": true
     }
   ],
