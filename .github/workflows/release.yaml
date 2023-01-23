@@ -32,10 +32,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Select charmhub channel
-        uses: canonical/charming-actions/channel@f03f7792b5359e72ea385f2f34b70fa3a84e7db9 # 2.2.0
+        uses: canonical/charming-actions/channel@726d010dbec2d43e830be0783b1f3d1bfc454687 # 2.2.1
         id: channel
       - name: Upload charm to charmhub
-        uses: canonical/charming-actions/upload-charm@f03f7792b5359e72ea385f2f34b70fa3a84e7db9 # 2.2.0
+        uses: canonical/charming-actions/upload-charm@726d010dbec2d43e830be0783b1f3d1bfc454687 # 2.2.1
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
