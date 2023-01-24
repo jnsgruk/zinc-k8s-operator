@@ -185,7 +185,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 3
+LIBPATCH = 4
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +197,7 @@ RELATION_INTERFACE_NAME = "parca_scrape"
 
 
 class RelationNotFoundError(Exception):
-    """Raised if there is no relation with the given name is found."""
+    """Raise if there is no relation with the given name is found."""
 
     def __init__(self, relation_name: str):
         self.relation_name = relation_name
@@ -206,7 +206,7 @@ class RelationNotFoundError(Exception):
 
 
 class RelationInterfaceMismatchError(Exception):
-    """Raised if the relation with the given name has a different interface."""
+    """Raise if the relation with the given name has a different interface."""
 
     def __init__(
         self,
@@ -227,7 +227,7 @@ class RelationInterfaceMismatchError(Exception):
 
 
 class RelationRoleMismatchError(Exception):
-    """Raised if the relation with the given name has a different role."""
+    """Raise if the relation with the given name has a different role."""
 
     def __init__(
         self,
@@ -251,7 +251,7 @@ def _validate_relation_by_interface_and_direction(
     expected_relation_interface: str,
     expected_relation_role: RelationRole,
 ):
-    """Verifies that a relation has the necessary characteristics.
+    """Verify that a relation has the necessary characteristics.
 
     Verifies that the `relation_name` provided: (1) exists in metadata.yaml,
     (2) declares as interface the interface name passed as `relation_interface`
@@ -355,12 +355,12 @@ class MonitoringEvents(ObjectEvents):
 
 
 class ProfilingEndpointConsumer(Object):
-    """A Parca based monitoring service."""
+    """Parca based monitoring service."""
 
     on = MonitoringEvents()
 
     def __init__(self, charm: CharmBase, relation_name: str = DEFAULT_RELATION_NAME):
-        """A Parca based Monitoring service.
+        """Construct a Parca based monitoring service.
 
         Args:
             charm: a `CharmBase` instance that manages this instance of the Parca service.
@@ -592,7 +592,7 @@ class ProfilingEndpointConsumer(Object):
         return juju_labels
 
     def _labeled_unitless_config(self, targets, labels, scrape_metadata) -> dict:
-        """Static scrape configuration for fully qualified host addresses.
+        """Return static scrape configuration for fully qualified host addresses.
 
         Fully qualified hosts are those scrape targets for which the address are specified by the
         `ProfilingEndpointProvider` as part of the scrape job specification set in application
@@ -616,7 +616,7 @@ class ProfilingEndpointConsumer(Object):
     def _labeled_unit_config(
         self, unit_name, host_address, ports, labels, scrape_metadata
     ) -> dict:
-        """Static scrape configuration for a wildcard host.
+        """Return static scrape configuration for a wildcard host.
 
         Wildcard hosts are those scrape targets whose name (Juju unit name) and address (unit IP
         address) is set into unit relation data by the `ProfilingEndpointProvider` charm, which
@@ -652,7 +652,7 @@ class ProfilingEndpointConsumer(Object):
 
 
 class ProfilingEndpointProvider(Object):
-    """A profiling endpoint for Parca."""
+    """Profiling endpoint for Parca."""
 
     def __init__(
         self,
