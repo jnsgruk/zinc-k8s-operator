@@ -85,7 +85,7 @@ class ZincCharm(CharmBase):
         self.unit.set_workload_version(self.version)
 
     def _on_get_admin_password(self, event: ActionEvent) -> None:
-        """Returns the initial generated password for the admin user as an action response."""
+        """Return the initial generated password for the admin user as an action response."""
         if not self._stored.initial_admin_password:
             self._stored.initial_admin_password = self._generate_password()
         event.set_results({"admin-password": self._stored.initial_admin_password})
@@ -130,12 +130,12 @@ class ZincCharm(CharmBase):
 
     @retry(stop=stop_after_delay(10))
     def _request_version(self) -> str:
-        """Helper for fetching the version from the running workload using the Zinc API."""
+        """Fetch the version from the running workload using the Zinc API."""
         res = urllib.request.urlopen("http://localhost:4080/version")
         return json.loads(res.read().decode())["version"]
 
     def _generate_password(self) -> str:
-        """Generates a random 24 character password."""
+        """Generate a random 24 character password."""
         chars = string.ascii_letters + string.digits
         return "".join(secrets.choice(chars) for _ in range(24))
 
