@@ -8,11 +8,11 @@ import json
 import logging
 import secrets
 import string
+import subprocess
 import urllib.request
 
 from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
-from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
 from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
@@ -38,9 +38,6 @@ class ZincCharm(CharmBase):
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
         self.framework.observe(self.on.update_status, self._on_update_status)
-
-        # Patch the juju created Kubernetes service to contain the right ports
-        self._service_patcher = KubernetesServicePatch(self, [(self.app.name, 4080, 4080)])
 
         # Provide ability for Zinc to be scraped by Prometheus using prometheus_scrape
         self._scraping = MetricsEndpointProvider(
@@ -77,6 +74,11 @@ class ZincCharm(CharmBase):
         container.add_layer("zinc", self._pebble_layer, combine=True)
         container.replan()
         self.unit.set_workload_version(self.version)
+
+        try:
+            subprocess.check_call(["open-port", "4080/tcp"])
+        except subprocess.CalledProcessError as e:
+            logger.error("failed to open port: %s", str(e))
 
         self.unit.status = ActiveStatus()
 
