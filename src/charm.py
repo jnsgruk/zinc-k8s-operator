@@ -47,7 +47,9 @@ class ZincCharm(CharmBase):
         )
 
         # Enable log forwarding for Loki and other charms that implement loki_push_api
-        self._logging = LogProxyConsumer(self, relation_name="log-proxy", log_files=[self._log_path])
+        self._logging = LogProxyConsumer(
+            self, relation_name="log-proxy", log_files=[self._log_path]
+        )
 
         # Provide grafana dashboards over a relation interface
         self._grafana_dashboards = GrafanaDashboardProvider(

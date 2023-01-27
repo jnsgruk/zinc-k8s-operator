@@ -40,7 +40,7 @@ provides:
     interface: grafana_dashboard
 
 requires:
-  logging:
+  log-proxy:
     interface: loki_push_api
     limit: 1
   ingress:
