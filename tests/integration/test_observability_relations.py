@@ -12,7 +12,7 @@ from . import ZINC
 logger = logging.getLogger(__name__)
 
 O11Y_CHARMS = ["prometheus-k8s", "grafana-k8s", "loki-k8s", "parca-k8s"]
-O11Y_RELS = ["metrics-endpoint", "grafana-dashboard", "logging", "profiling-endpoint"]
+O11Y_RELS = ["metrics-endpoint", "grafana-dashboard", "log-proxy", "profiling-endpoint"]
 ALL_CHARMS = [ZINC, *O11Y_CHARMS]
 
 
