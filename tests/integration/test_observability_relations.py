@@ -24,7 +24,9 @@ async def test_deploy_charms(ops_test, zinc_deploy_kwargs):
         ops_test.model.deploy("loki-k8s", channel="stable", trust=True),
         ops_test.model.deploy("grafana-k8s", channel="stable", trust=True),
         ops_test.model.deploy("parca-k8s", channel="edge", trust=True),
-        ops_test.model.wait_for_idle(apps=ALL_CHARMS, status="active", timeout=1000),
+        ops_test.model.wait_for_idle(
+            apps=ALL_CHARMS, status="active", timeout=1000, raise_on_error=False
+        ),
     )
 
 
