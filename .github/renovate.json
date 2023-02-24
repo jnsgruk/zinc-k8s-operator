@@ -18,19 +18,22 @@
     {
       "groupName": "github actions",
       "matchManagers": ["github-actions"],
-      "automerge": true
+      "automerge": true,
+      "schedule": ["on monday"]
     },
     {
       "groupName": "testing deps",
       "matchFiles": ["tox.ini"],
       "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
-      "automerge": true
+      "automerge": true,
+      "schedule": ["on monday"]
     },
     {
       "groupName": "renovate packages",
       "matchSourceUrlPrefixes": ["https://github.com/renovatebot/"],
       "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
-      "automerge": true
+      "automerge": true,
+      "schedule": ["on monday"]
     }
   ],
   "regexManagers": [
