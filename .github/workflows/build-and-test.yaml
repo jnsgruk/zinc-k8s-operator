@@ -38,7 +38,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check libs
-        uses: canonical/charming-actions/check-libraries@e60e65a61eb6b7459716e55c7c7f8bc97d6ff02c # 2.2.5
+        uses: canonical/charming-actions/check-libraries@a4a19eaf56a69deb271f1f76d7babf8107c3a1b5 # 2.3.0
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
