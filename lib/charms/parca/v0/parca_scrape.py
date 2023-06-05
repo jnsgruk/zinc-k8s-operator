@@ -173,9 +173,8 @@ import logging
 import socket
 from typing import List, Optional, Union
 
+import ops
 from charms.observability_libs.v0.juju_topology import JujuTopology
-from ops.charm import CharmBase, RelationRole
-from ops.framework import BoundEvent, EventBase, EventSource, Object, ObjectEvents
 
 # The unique Charmhub library identifier, never change it
 LIBID = "7b30b495435746acb645ca414898621f"
@@ -185,7 +184,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 logger = logging.getLogger(__name__)
 
@@ -232,8 +231,8 @@ class RelationRoleMismatchError(Exception):
     def __init__(
         self,
         relation_name: str,
-        expected_relation_role: RelationRole,
-        actual_relation_role: RelationRole,
+        expected_relation_role: ops.RelationRole,
+        actual_relation_role: ops.RelationRole,
     ):
         self.relation_name = relation_name
         self.expected_relation_interface = expected_relation_role
@@ -246,10 +245,10 @@ class RelationRoleMismatchError(Exception):
 
 
 def _validate_relation_by_interface_and_direction(
-    charm: CharmBase,
+    charm: ops.CharmBase,
     relation_name: str,
     expected_relation_interface: str,
-    expected_relation_role: RelationRole,
+    expected_relation_role: ops.RelationRole,
 ):
     """Verify that a relation has the necessary characteristics.
 
@@ -259,7 +258,7 @@ def _validate_relation_by_interface_and_direction(
     provides or requires.
 
     Args:
-        charm: a `CharmBase` object to scan for the matching relation.
+        charm: a `ops.CharmBase` object to scan for the matching relation.
         relation_name: the name of the relation to be verified.
         expected_relation_interface: the interface name to be matched by the
             relation named `relation_name`.
@@ -272,7 +271,7 @@ def _validate_relation_by_interface_and_direction(
         RelationInterfaceMismatchError: The relation with the same name as provided
             via `relation_name` argument does not have the same relation interface
             as specified via the `expected_relation_interface` argument.
-        RelationRoleMismatchError: If the relation with the same name as provided
+        ops.RelationRoleMismatchError: If the relation with the same name as provided
             via `relation_name` argument does not have the same role as specified
             via the `expected_relation_role` argument.
     """
@@ -287,15 +286,15 @@ def _validate_relation_by_interface_and_direction(
             relation_name, expected_relation_interface, actual_relation_interface
         )
 
-    if expected_relation_role == RelationRole.provides:
+    if expected_relation_role == ops.RelationRole.provides:
         if relation_name not in charm.meta.provides:
-            raise RelationRoleMismatchError(
-                relation_name, RelationRole.provides, RelationRole.requires
+            raise ops.RelationRoleMismatchError(
+                relation_name, ops.RelationRole.provides, ops.RelationRole.requires
             )
-    elif expected_relation_role == RelationRole.requires:
+    elif expected_relation_role == ops.RelationRole.requires:
         if relation_name not in charm.meta.requires:
-            raise RelationRoleMismatchError(
-                relation_name, RelationRole.requires, RelationRole.provides
+            raise ops.RelationRoleMismatchError(
+                relation_name, ops.RelationRole.requires, ops.RelationRole.provides
             )
     else:
         raise Exception("Unexpected RelationDirection: {}".format(expected_relation_role))
@@ -332,7 +331,7 @@ class ProviderTopology(JujuTopology):
         return "juju_{}_parca_scrape".format(self.identifier)
 
 
-class TargetsChangedEvent(EventBase):
+class TargetsChangedEvent(ops.EventBase):
     """Event emitted when Parca scrape targets change."""
 
     def __init__(self, handle, relation_id):
@@ -348,22 +347,22 @@ class TargetsChangedEvent(EventBase):
         self.relation_id = snapshot["relation_id"]
 
 
-class MonitoringEvents(ObjectEvents):
+class MonitoringEvents(ops.ObjectEvents):
     """Event descriptor for events raised by `ProfilingEndpointConsumer`."""
 
-    targets_changed = EventSource(TargetsChangedEvent)
+    targets_changed = ops.EventSource(TargetsChangedEvent)
 
 
-class ProfilingEndpointConsumer(Object):
+class ProfilingEndpointConsumer(ops.Object):
     """Parca based monitoring service."""
 
     on = MonitoringEvents()
 
-    def __init__(self, charm: CharmBase, relation_name: str = DEFAULT_RELATION_NAME):
+    def __init__(self, charm: ops.CharmBase, relation_name: str = DEFAULT_RELATION_NAME):
         """Construct a Parca based monitoring service.
 
         Args:
-            charm: a `CharmBase` instance that manages this instance of the Parca service.
+            charm: a `ops.CharmBase` instance that manages this instance of the Parca service.
             relation_name: an optional string name of the relation between `charm`
                 and the Parca charmed service. The default is "profiling-endpoint".
 
@@ -373,12 +372,12 @@ class ProfilingEndpointConsumer(Object):
             RelationInterfaceMismatchError: The relation with the same name as provided
                 via `relation_name` argument does not have the `parca_scrape` relation
                 interface.
-            RelationRoleMismatchError: If the relation with the same name as provided
-                via `relation_name` argument does not have the `RelationRole.requires`
+            ops.RelationRoleMismatchError: If the relation with the same name as provided
+                via `relation_name` argument does not have the `ops.RelationRole.requires`
                 role.
         """
         _validate_relation_by_interface_and_direction(
-            charm, relation_name, RELATION_INTERFACE_NAME, RelationRole.requires
+            charm, relation_name, RELATION_INTERFACE_NAME, ops.RelationRole.requires
         )
 
         super().__init__(charm, relation_name)
@@ -504,7 +503,6 @@ class ProfilingEndpointConsumer(Object):
         """Construct labeled job configuration for a single job.
 
         Args:
-
             job: a dictionary representing the job configuration as obtained from
                 `ProfilingEndpointProvider` over relation data.
             job_name_prefix: a string that may either be used as the
@@ -651,7 +649,7 @@ class ProfilingEndpointConsumer(Object):
         return static_config
 
 
-class ProfilingEndpointProvider(Object):
+class ProfilingEndpointProvider(ops.Object):
     """Profiling endpoint for Parca."""
 
     def __init__(
@@ -659,7 +657,7 @@ class ProfilingEndpointProvider(Object):
         charm,
         relation_name: str = DEFAULT_RELATION_NAME,
         jobs=None,
-        refresh_event: Optional[Union[BoundEvent, List[BoundEvent]]] = None,
+        refresh_event: Optional[Union[ops.BoundEvent, List[ops.BoundEvent]]] = None,
     ):
         """Construct a profiling provider for a Parca charm.
 
@@ -686,7 +684,7 @@ class ProfilingEndpointProvider(Object):
         The notation `*:<port>` means "scrape each unit of this charm on port `<port>`.
 
         Args:
-            charm: a `CharmBase` object that manages this
+            charm: a `ops.CharmBase` object that manages this
                 `ProfilingEndpointProvider` object. Typically this is `self` in the instantiating
                 class.
             relation_name: an optional string name of the relation between `charm`
@@ -706,12 +704,12 @@ class ProfilingEndpointProvider(Object):
             RelationInterfaceMismatchError: The relation with the same name as provided
                 via `relation_name` argument does not have the `parca_scrape` relation
                 interface.
-            RelationRoleMismatchError: If the relation with the same name as provided
-                via `relation_name` argument does not have the `RelationRole.provides`
+            ops.RelationRoleMismatchError: If the relation with the same name as provided
+                via `relation_name` argument does not have the `ops.RelationRole.provides`
                 role.
         """
         _validate_relation_by_interface_and_direction(
-            charm, relation_name, RELATION_INTERFACE_NAME, RelationRole.provides
+            charm, relation_name, RELATION_INTERFACE_NAME, ops.RelationRole.provides
         )
 
         super().__init__(charm, relation_name)
