@@ -10,26 +10,22 @@ import secrets
 import string
 import urllib.request
 
+import ops
 from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
 from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
 from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
-from ops.charm import ActionEvent, CharmBase, WorkloadEvent
-from ops.framework import StoredState
-from ops.main import main
-from ops.model import ActiveStatus
-from ops.pebble import Layer
 from tenacity import retry, stop_after_delay
 
 logger = logging.getLogger(__name__)
 
 
-class ZincCharm(CharmBase):
+class ZincCharm(ops.CharmBase):
     """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
-    _stored = StoredState()
+    _stored = ops.StoredState()
     _log_path = "/var/log/zinc.log"
 
     def __init__(self, *args):
@@ -66,7 +62,7 @@ class ZincCharm(CharmBase):
 
         self._ingress = IngressPerAppRequirer(self, port=4080)
 
-    def _on_zinc_pebble_ready(self, event: WorkloadEvent):
+    def _on_zinc_pebble_ready(self, event: ops.WorkloadEvent):
         """Define and start a workload using the Pebble API."""
         # Get a reference the container attribute on the PebbleReadyEvent
         container = event.workload
@@ -80,21 +76,21 @@ class ZincCharm(CharmBase):
         container.replan()
         self.unit.set_workload_version(self.version)
 
-        self.unit.status = ActiveStatus()
+        self.unit.status = ops.ActiveStatus()
 
     def _on_update_status(self, _):
         """Update the status of the application."""
         self.unit.set_workload_version(self.version)
 
-    def _on_get_admin_password(self, event: ActionEvent) -> None:
+    def _on_get_admin_password(self, event: ops.ActionEvent) -> None:
         """Return the initial generated password for the admin user as an action response."""
         if not self._stored.initial_admin_password:
             self._stored.initial_admin_password = self._generate_password()
         event.set_results({"admin-password": self._stored.initial_admin_password})
 
     @property
-    def _pebble_layer(self) -> Layer:
-        return Layer(
+    def _pebble_layer(self) -> ops.pebble.Layer:
+        return ops.pebble.Layer(
             {
                 "services": {
                     "zinc": {
@@ -143,4 +139,4 @@ class ZincCharm(CharmBase):
 
 
 if __name__ == "__main__":  # pragma: nocover
-    main(ZincCharm, use_juju_for_storage=True)
+    ops.main(ZincCharm, use_juju_for_storage=True)
