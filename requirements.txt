@@ -1,6 +1,6 @@
 ops==2.4.1
 jsonschema==4.18.0
-lightkube==0.13.0
+lightkube==0.14.0
 lightkube-models==1.27.1.4
 tenacity==8.2.2
 
