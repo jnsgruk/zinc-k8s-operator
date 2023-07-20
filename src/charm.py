@@ -4,20 +4,16 @@
 
 """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
-import json
 import logging
 import secrets
-import string
-import urllib.request
 
 import ops
 from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
-from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
 from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
-from tenacity import retry, stop_after_delay
+from zinc import Zinc
 
 logger = logging.getLogger(__name__)
 
@@ -25,29 +21,25 @@ logger = logging.getLogger(__name__)
 class ZincCharm(ops.CharmBase):
     """Charmed Operator for Zinc; a lightweight elasticsearch alternative."""
 
-    _stored = ops.StoredState()
-    _log_path = "/var/log/zinc.log"
-
     def __init__(self, *args):
         super().__init__(*args)
-        self._stored.set_default(initial_admin_password="")
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
         self.framework.observe(self.on.update_status, self._on_update_status)
 
-        # Patch the juju created Kubernetes service to contain the right ports
-        self._service_patcher = KubernetesServicePatch(self, [(self.app.name, 4080, 4080)])
+        self._container = self.unit.get_container("zinc")
+        self._zinc = Zinc()
 
         # Provide ability for Zinc to be scraped by Prometheus using prometheus_scrape
         self._scraping = MetricsEndpointProvider(
             self,
             relation_name="metrics-endpoint",
-            jobs=[{"static_configs": [{"targets": ["*:4080"]}]}],
+            jobs=[{"static_configs": [{"targets": [f"*:{self._zinc.port}"]}]}],
         )
 
         # Enable log forwarding for Loki and other charms that implement loki_push_api
         self._logging = LogProxyConsumer(
-            self, relation_name="log-proxy", log_files=[self._log_path]
+            self, relation_name="log-proxy", log_files=[self._zinc.log_path]
         )
 
         # Provide grafana dashboards over a relation interface
@@ -57,86 +49,51 @@ class ZincCharm(ops.CharmBase):
 
         # Enable profiling over a relation with Parca
         self._profiling = ProfilingEndpointProvider(
-            self, jobs=[{"static_configs": [{"targets": ["*:4080"]}]}]
+            self, jobs=[{"static_configs": [{"targets": [f"*:{self._zinc.port}"]}]}]
         )
 
-        self._ingress = IngressPerAppRequirer(self, port=4080)
+        self._ingress = IngressPerAppRequirer(self, port=self._zinc.port)
 
     def _on_zinc_pebble_ready(self, event: ops.WorkloadEvent):
         """Define and start a workload using the Pebble API."""
-        # Get a reference the container attribute on the PebbleReadyEvent
-        container = event.workload
+        password = self._generated_password()
+        self._container.add_layer("zinc", self._zinc.pebble_layer(password), combine=True)
+        self._container.replan()
 
-        # If we've not got an initial admin password, then generate one
-        if not self._stored.initial_admin_password:
-            self._stored.initial_admin_password = self._generate_password()
-
-        # Define an initial Pebble layer configuration
-        container.add_layer("zinc", self._pebble_layer, combine=True)
-        container.replan()
-        self.unit.set_workload_version(self.version)
+        self.unit.set_workload_version(self._zinc.version)
+        self.unit.open_port(protocol="tcp", port=self._zinc.port)
 
         self.unit.status = ops.ActiveStatus()
 
     def _on_update_status(self, _):
         """Update the status of the application."""
-        self.unit.set_workload_version(self.version)
+        if self._container.can_connect() and self._container.get_services("zinc"):
+            self.unit.set_workload_version(self._zinc.version)
 
     def _on_get_admin_password(self, event: ops.ActionEvent) -> None:
         """Return the initial generated password for the admin user as an action response."""
-        if not self._stored.initial_admin_password:
-            self._stored.initial_admin_password = self._generate_password()
-        event.set_results({"admin-password": self._stored.initial_admin_password})
+        event.set_results({"admin-password": self._generated_password()})
 
-    @property
-    def _pebble_layer(self) -> ops.pebble.Layer:
-        return ops.pebble.Layer(
-            {
-                "services": {
-                    "zinc": {
-                        "override": "replace",
-                        "summary": "zinc",
-                        "command": '/bin/sh -c "/go/bin/zinc | tee {}"'.format(self._log_path),
-                        "startup": "enabled",
-                        "environment": {
-                            "ZINC_DATA_PATH": "/go/bin/data",
-                            "ZINC_FIRST_ADMIN_USER": "admin",
-                            "ZINC_FIRST_ADMIN_PASSWORD": self._stored.initial_admin_password,
-                            "ZINC_PROMETHEUS_ENABLE": True,
-                            "ZINC_TELEMETRY": False,
-                            "ZINC_PROFILER": True,
-                        },
-                    }
-                },
-            }
-        )
+    def _generated_password(self) -> str:
+        """Report the generated admin password; generate one if it doesn't exist."""
+        # If the peer relation is not ready, just return an empty string
+        relation = self.model.get_relation("zinc-peers")
+        if not relation:
+            return ""
 
-    @property
-    def version(self) -> str:
-        """Reports the current Zinc version."""
-        container = self.unit.get_container("zinc")
-        if container.can_connect() and container.get_services("zinc"):
-            try:
-                return self._request_version()
-            # Catching Exception is not ideal, but we don't care much for the error here, and just
-            # default to setting a blank version since there isn't much the admin can do!
-            except Exception as e:
-                logger.warning("unable to get version from API: %s", str(e))
-                logger.debug(e, exc_info=True)
-                return ""
-        return ""
+        # If the secret already exists, grab its content and return it
+        secret_id = relation.data[self.app].get("initial-admin-password", None)
 
-    @retry(stop=stop_after_delay(10))
-    def _request_version(self) -> str:
-        """Fetch the version from the running workload using the Zinc API."""
-        res = urllib.request.urlopen("http://localhost:4080/version")
-        return json.loads(res.read().decode())["version"]
-
-    def _generate_password(self) -> str:
-        """Generate a random 24 character password."""
-        chars = string.ascii_letters + string.digits
-        return "".join(secrets.choice(chars) for _ in range(24))
+        if secret_id:
+            secret = self.model.get_secret(id=secret_id)
+            return secret.peek_content().get("password")
+        else:
+            content = {"password": secrets.token_urlsafe(24)}
+            secret = self.app.add_secret(content)
+            # Store the secret id in the peer relation for other units if required
+            relation.data[self.app]["initial-admin-password"] = secret.id
+            return content["password"]
 
 
 if __name__ == "__main__":  # pragma: nocover
-    ops.main(ZincCharm, use_juju_for_storage=True)
+    ops.main(ZincCharm)

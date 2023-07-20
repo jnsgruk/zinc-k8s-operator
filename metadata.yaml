@@ -17,6 +17,9 @@ summary: |
   elasticsearch and runs in less than 100 MB of RAM. It uses bluge as the underlying indexing
   library.
 
+assumes:
+  - juju >= 3.1
+
 containers:
   zinc:
     resource: zinc-image
@@ -30,6 +33,10 @@ resources:
     description: OCI image for zinc
     # Included for simplicity in integration tests
     upstream-source: jnsgruk/zinc:0.4.7
+
+peers:
+  zinc-peers:
+    interface: zinc_peers
 
 provides:
   metrics-endpoint:

@@ -9,8 +9,6 @@ import gzip
 import re
 
 import requests
-from lightkube.core.client import Client
-from lightkube.resources.core_v1 import Service
 from pytest import mark
 from pytest_operator.plugin import OpsTest
 from tenacity import retry
@@ -43,14 +41,6 @@ async def test_application_is_up(ops_test: OpsTest):
     address = status["applications"][ZINC]["public-address"]
     response = requests.get(f"http://{address}:4080/version")
     return response.status_code == 200
-
-
-@retry(wait=wexp(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True)
-async def test_application_service_port_patch(ops_test: OpsTest):
-    # Check the port has actually been patched
-    client = Client()
-    svc = client.get(Service, name=ZINC, namespace=ops_test.model_name)
-    assert svc.spec.ports[0].port == 4080
 
 
 @mark.abort_on_fail
