@@ -5,17 +5,12 @@ import re
 import unittest
 from unittest.mock import Mock, PropertyMock, patch
 
-import ops.testing
 from charm import ZincCharm
 from ops.model import ActiveStatus
-from ops.pebble import Layer
 from ops.testing import Harness
 
-unittest.TestCase.maxDiff = None
-ops.testing.SIMULATE_CAN_CONNECT = True
 
-
-@patch("charm.ZincCharm._request_version", lambda x: "0.2.6")
+@patch("charm.Zinc._request_version", lambda x: "0.2.6")
 class TestCharm(unittest.TestCase):
     def setUp(self):
         self.harness = Harness(ZincCharm)
@@ -38,7 +33,7 @@ class TestCharm(unittest.TestCase):
 
         # Check we've got the plan we expected
         updated_plan = self.harness.get_container_pebble_plan("zinc").to_dict()
-        self.assertEqual(self.harness.charm._pebble_layer.to_dict(), updated_plan)
+        self.assertEqual(self.harness.charm._zinc.pebble_layer("password"), updated_plan)
 
         # Check the service was started
         service = self.harness.model.unit.get_container("zinc").get_service("zinc")
@@ -53,7 +48,7 @@ class TestCharm(unittest.TestCase):
         self.harness.container_pebble_ready("zinc")
         self.assertEqual(self.harness.get_workload_version(), "0.2.6")
 
-        with patch("charm.ZincCharm.version", new_callable=PropertyMock(return_value="0.4.0")):
+        with patch("charm.Zinc.version", new_callable=PropertyMock(return_value="0.4.0")):
             self.harness.charm.on.update_status.emit()
             self.assertEqual(self.harness.get_workload_version(), "0.4.0")
 
@@ -75,30 +70,6 @@ class TestCharm(unittest.TestCase):
         generate.reset_mock()
         self.harness.charm._on_get_admin_password(mock_event)
         generate.assert_not_called()
-
-    def test_property_pebble_layer(self):
-        self.harness.charm._stored.initial_admin_password = "password"
-        expected = Layer(
-            {
-                "services": {
-                    "zinc": {
-                        "override": "replace",
-                        "summary": "zinc",
-                        "command": '/bin/sh -c "/go/bin/zinc | tee /var/log/zinc.log"',
-                        "startup": "enabled",
-                        "environment": {
-                            "ZINC_DATA_PATH": "/go/bin/data",
-                            "ZINC_FIRST_ADMIN_USER": "admin",
-                            "ZINC_FIRST_ADMIN_PASSWORD": "password",
-                            "ZINC_PROMETHEUS_ENABLE": True,
-                            "ZINC_TELEMETRY": False,
-                            "ZINC_PROFILER": True,
-                        },
-                    }
-                },
-            }
-        )
-        self.assertEqual(self.harness.charm._pebble_layer.to_dict(), expected.to_dict())
 
     def test_generate_password(self):
         password = self.harness.charm._generate_password()
