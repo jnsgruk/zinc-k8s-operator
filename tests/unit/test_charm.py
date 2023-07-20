@@ -17,7 +17,6 @@ ops.testing.SIMULATE_CAN_CONNECT = True
 
 @patch("charm.ZincCharm._request_version", lambda x: "0.2.6")
 class TestCharm(unittest.TestCase):
-    @patch("charm.KubernetesServicePatch", lambda x, y: None)
     def setUp(self):
         self.harness = Harness(ZincCharm)
         self.addCleanup(self.harness.cleanup)

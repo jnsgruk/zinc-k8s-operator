@@ -13,7 +13,6 @@ import urllib.request
 import ops
 from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
-from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
 from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
 from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
@@ -27,6 +26,7 @@ class ZincCharm(ops.CharmBase):
 
     _stored = ops.StoredState()
     _log_path = "/var/log/zinc.log"
+    _port = 4080
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -35,14 +35,11 @@ class ZincCharm(ops.CharmBase):
         self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
         self.framework.observe(self.on.update_status, self._on_update_status)
 
-        # Patch the juju created Kubernetes service to contain the right ports
-        self._service_patcher = KubernetesServicePatch(self, [(self.app.name, 4080, 4080)])
-
         # Provide ability for Zinc to be scraped by Prometheus using prometheus_scrape
         self._scraping = MetricsEndpointProvider(
             self,
             relation_name="metrics-endpoint",
-            jobs=[{"static_configs": [{"targets": ["*:4080"]}]}],
+            jobs=[{"static_configs": [{"targets": [f"*:{self._port}"]}]}],
         )
 
         # Enable log forwarding for Loki and other charms that implement loki_push_api
@@ -57,10 +54,10 @@ class ZincCharm(ops.CharmBase):
 
         # Enable profiling over a relation with Parca
         self._profiling = ProfilingEndpointProvider(
-            self, jobs=[{"static_configs": [{"targets": ["*:4080"]}]}]
+            self, jobs=[{"static_configs": [{"targets": [f"*:{self._port}"]}]}]
         )
 
-        self._ingress = IngressPerAppRequirer(self, port=4080)
+        self._ingress = IngressPerAppRequirer(self, port=self._port)
 
     def _on_zinc_pebble_ready(self, event: ops.WorkloadEvent):
         """Define and start a workload using the Pebble API."""
@@ -75,6 +72,7 @@ class ZincCharm(ops.CharmBase):
         container.add_layer("zinc", self._pebble_layer, combine=True)
         container.replan()
         self.unit.set_workload_version(self.version)
+        self.unit.open_port(protocol="tcp", port=self._port)
 
         self.unit.status = ops.ActiveStatus()
 
@@ -129,7 +127,7 @@ class ZincCharm(ops.CharmBase):
     @retry(stop=stop_after_delay(10))
     def _request_version(self) -> str:
         """Fetch the version from the running workload using the Zinc API."""
-        res = urllib.request.urlopen("http://localhost:4080/version")
+        res = urllib.request.urlopen(f"http://localhost:{self._port}/version")
         return json.loads(res.read().decode())["version"]
 
     def _generate_password(self) -> str:
