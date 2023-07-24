@@ -25,14 +25,16 @@ containers:
     resource: zinc-image
     mounts:
       - storage: data
-        location: /go/bin/data
+        location: /data
+      - storage: logs
+        location: /var/log/zincsearch
 
 resources:
   zinc-image:
     type: oci-image
     description: OCI image for zinc
     # Included for simplicity in integration tests
-    upstream-source: jnsgruk/zinc:0.4.7
+    upstream-source: ghcr.io/jnsgruk/zinc:0.4.7
 
 peers:
   zinc-peers:
@@ -58,3 +60,6 @@ storage:
   data:
     type: filesystem
     location: /zinc-data
+  logs:
+    type: filesystem
+    location: /zinc-logs

@@ -16,7 +16,7 @@ class Zinc:
     """Represent a Zinc instance in the workload."""
 
     _port = 4080
-    _log_path = "/var/log/zinc.log"
+    _log_path = "/var/log/zincsearch/zinc.log"
 
     def pebble_layer(self, initial_password) -> dict:
         """Return a Pebble layer for managing Zinc."""
@@ -25,10 +25,10 @@ class Zinc:
                 "zinc": {
                     "override": "replace",
                     "summary": "zinc",
-                    "command": '/bin/sh -c "/go/bin/zinc | tee {}"'.format(self.log_path),
+                    "command": f"/bin/busybox sh -c '/bin/zincsearch | /bin/busybox tee {self.log_path}'",
                     "startup": "enabled",
                     "environment": {
-                        "ZINC_DATA_PATH": "/go/bin/data",
+                        "ZINC_DATA_PATH": "/data",
                         "ZINC_FIRST_ADMIN_USER": "admin",
                         "ZINC_FIRST_ADMIN_PASSWORD": initial_password,
                         "ZINC_PROMETHEUS_ENABLE": True,
