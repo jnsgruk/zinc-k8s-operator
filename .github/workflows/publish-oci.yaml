@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "Dockerfile"
+      - "rockcraft.yaml"
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -13,29 +13,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4c0219f9ac95b02789c1075625400b2acbff50b1 # v2
-
       - name: Check the version
         id: get_version
         run: |
-          version="$(grep -Po "zinc:\K[0-9]+\.[0-9]+\.[0-9]+" Dockerfile)"
+          sudo snap install yq --classic
+          version="$(yq '.version' rockcraft.yaml)"
           echo "VERSION=$version" >> $GITHUB_OUTPUT
-
-      - name: Build and push
-        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # v4
+      
+      - id: rockcraft
+        name: Build ROCK
+        uses: canonical/craft-actions/rockcraft-pack@main
+      
+      - name: Upload ROCK artifact
+        uses: actions/upload-artifact@v3
         with:
-          context: ./
-          file: ./Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/zinc:${{ steps.get_version.outputs.VERSION }},${{ secrets.DOCKER_HUB_USERNAME }}/zinc:latest
+            name: zinc-rock
+            path: ${{ steps.rockcraft.outputs.rock }}
+
+      - name: Upload ROCK to ghcr.io
+        run: |
+          # Upload ROCK to ghcr.io/jnsgruk/zinc:<version>
+          sudo skopeo --insecure-policy copy \
+            "oci-archive:$(realpath ./zinc_*.rock)" \
+            "docker://ghcr.io/jnsgruk/zinc:${{ steps.get_version.outputs.VERSION }}" \
+            --dest-creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+
+          # Upload ROCK to ghcr.io/jnsgruk/zinc:latest
+          sudo skopeo --insecure-policy copy \
+            "oci-archive:$(realpath ./zinc_*.rock)" \
+            "docker://ghcr.io/jnsgruk/zinc:latest" \
+            --dest-creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
 
       - name: Update charm metadata
         run: |
@@ -54,11 +61,11 @@ jobs:
         id: cpr
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          commit-message: "chore(deps): bump zinc container image to `jnsgruk/zinc:${{ steps.get_version.outputs.VERSION }}`"
+          commit-message: "chore(deps): bump zinc container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
           committer: "Github Actions <github-actions@github.com>"
           author: "Github Actions <github-actions@github.com>"
-          title: "Update container image to `jnsgruk/zinc:${{ steps.get_version.outputs.VERSION }}`"
-          body: "Update container image to `jnsgruk/zinc:${{ steps.get_version.outputs.VERSION }}`"
+          title: "Update container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
+          body: "Update container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
           branch: "auto-container-${{ steps.get_version.outputs.VERSION }}"
           delete-branch: true
           reviewers: jnsgruk
