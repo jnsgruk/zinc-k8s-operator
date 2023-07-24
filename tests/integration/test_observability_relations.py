@@ -32,7 +32,7 @@ async def test_deploy_charms(ops_test, zinc_deploy_kwargs):
 @mark.parametrize("endpoint,remote", list(zip(O11Y_RELS, O11Y_CHARMS)))
 async def test_create_relation(ops_test, endpoint, remote):
     # Create the relation
-    await ops_test.model.add_relation(f"{ZINC}:{endpoint}", remote)
+    await ops_test.model.integrate(f"{ZINC}:{endpoint}", remote)
     # Wait for the two apps to quiesce
     await ops_test.model.wait_for_idle(apps=[ZINC, remote], status="active", timeout=1000)
 

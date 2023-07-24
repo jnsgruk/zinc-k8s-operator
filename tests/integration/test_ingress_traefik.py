@@ -31,7 +31,7 @@ async def test_ingress_traefik_k8s(ops_test, zinc_deploy_kwargs):
     )
 
     # Create the relation
-    await ops_test.model.add_relation(ZINC, TRAEFIK)
+    await ops_test.model.integrate(ZINC, TRAEFIK)
     # Wait for the two apps to quiesce
     await ops_test.model.wait_for_idle(apps=apps, status="active", timeout=1000)
 
