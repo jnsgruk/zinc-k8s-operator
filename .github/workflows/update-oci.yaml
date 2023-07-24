@@ -47,9 +47,11 @@ jobs:
       - name: Update version
         run: |
           # Grab the output from the last job
-          LATEST="${{ needs.check-upstream.outputs.release }}"
-          # Update the version (strip the leading 'v' from the LATEST version)
-          sed -i "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${LATEST/v/}/g" Dockerfile
+          upstream="${{ needs.check-upstream.outputs.release }}"
+          # Strip the leading 'v' from the upstream release version
+          export latest="${upstream/v/}"
+          # Update the version in the rockcraft.yaml
+          yq -i '.version = env(latest)' rockcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # v1
