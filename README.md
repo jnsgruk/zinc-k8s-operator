@@ -48,7 +48,10 @@ You should then be able to browse to `http://<address>:4080` and login with the 
 
 ## OCI Images
 
-This charm uses [an altered version](https://hub.docker.com/r/jnsgruk/zinc) of the image provided by the upstream, running on `ubuntu` rather than `scratch`. 
+This charm relies on a [Chiselled ROCK](https://ubuntu.com/blog/combining-distroless-and-ubuntu-chiselled-containers).
+
+This image is similar to a `distroless` image, in that it only contains the bare minimum
+dependencies for Zinc to run. You can see the source [here](./rockcraft.yaml).
 
 ## Contributing
 
