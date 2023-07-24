@@ -46,7 +46,7 @@ async def test_application_is_up(ops_test: OpsTest):
 @mark.abort_on_fail
 async def test_get_admin_password_action(ops_test: OpsTest):
     password = await _get_password(ops_test)
-    assert re.match("[A-Za-z0-9]{24}", password)
+    assert re.match("[A-Za-z0-9-_]{24}", password)
 
 
 @retry(wait=wexp(multiplier=2, min=1, max=30), stop=stop_after_attempt(10), reraise=True)
