@@ -22,7 +22,7 @@ description: |
 run_user: _daemon_
 
 environment:
-  ZINC_DATA_PATH: /data
+  ZINC_DATA_PATH: /var/lib/zincsearch
   ZINC_PROMETHEUS_ENABLE: true
   ZINC_TELEMETRY: false
   ZINC_PROFILER: true
@@ -31,7 +31,7 @@ services:
   zinc:
     override: replace
     startup: enabled
-    command: /bin/zincsearch
+    command: /bin/go-runner --log-file=/var/lib/zincsearch/zinc.log --also-stdout=true --redirect-stderr=true /bin/zincsearch
 
 parts:
   zinc:
@@ -66,11 +66,25 @@ parts:
     stage-packages:
       - libc6_libs
       - ca-certificates_data
-      # This can be removed once Pebble supports Loki forwarding.
-      - busybox_bins
     override-stage: |
-      # Create the bin directory and copy the binary into it
+      # Create some directories
       mkdir -p "${CRAFT_PART_INSTALL}/bin"
+
+      # Install the zincsearch binary
       install -m 0755 "${CRAFT_PART_BUILD}/zincsearch" "${CRAFT_PART_INSTALL}/bin/zincsearch"
+      
       # Run the default stage hook
       craftctl default
+  
+  # This part can be removed once Pebble supports log forwarding
+  kube-log-runner:
+    plugin: go
+    source: https://github.com/kubernetes/release
+    source-type: git
+    source-tag: v0.15.1
+    source-subdir: images/build/go-runner
+    build-snaps:
+      - go/latest/stable
+    build-environment:
+      - CGO_ENABLED: 0
+      - GOOS: linux
