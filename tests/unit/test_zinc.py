@@ -17,10 +17,10 @@ class TestCharm(unittest.TestCase):
                 "zinc": {
                     "override": "replace",
                     "summary": "zinc",
-                    "command": "/bin/busybox sh -c '/bin/zincsearch | /bin/busybox tee /var/log/zincsearch/zinc.log'",
+                    "command": "/bin/go-runner --log-file=/var/lib/zincsearch/zinc.log --also-stdout=true --redirect-stderr=true /bin/zincsearch",
                     "startup": "enabled",
                     "environment": {
-                        "ZINC_DATA_PATH": "/data",
+                        "ZINC_DATA_PATH": "/var/lib/zincsearch",
                         "ZINC_FIRST_ADMIN_USER": "admin",
                         "ZINC_FIRST_ADMIN_PASSWORD": "password",
                         "ZINC_PROMETHEUS_ENABLE": True,

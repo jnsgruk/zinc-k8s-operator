@@ -25,9 +25,7 @@ containers:
     resource: zinc-image
     mounts:
       - storage: data
-        location: /data
-      - storage: logs
-        location: /var/log/zincsearch
+        location: /var/lib/zincsearch
 
 resources:
   zinc-image:
@@ -60,6 +58,3 @@ storage:
   data:
     type: filesystem
     location: /zinc-data
-  logs:
-    type: filesystem
-    location: /zinc-logs
