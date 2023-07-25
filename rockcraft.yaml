@@ -67,13 +67,8 @@ parts:
       - libc6_libs
       - ca-certificates_data
     override-stage: |
-      # Create some directories
       mkdir -p "${CRAFT_PART_INSTALL}/bin"
-
-      # Install the zincsearch binary
       install -m 0755 "${CRAFT_PART_BUILD}/zincsearch" "${CRAFT_PART_INSTALL}/bin/zincsearch"
-      
-      # Run the default stage hook
       craftctl default
   
   # This part can be removed once Pebble supports log forwarding
