@@ -52,7 +52,6 @@ jobs:
           export latest="${upstream/v/}"
           # Update the version in the rockcraft.yaml
           yq -i '.version = env(latest)' rockcraft.yaml
-          yq -i '.parts.zinc.source-tag = env(latest)' rockcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # v1

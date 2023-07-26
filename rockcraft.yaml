@@ -38,7 +38,7 @@ parts:
     plugin: go
     source: https://github.com/zincsearch/zincsearch
     source-type: git
-    source-tag: v0.4.7
+    source-tag: v$CRAFT_PROJECT_VERSION
     build-snaps:
       - go/latest/stable
       - node/18/stable
