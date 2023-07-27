@@ -23,7 +23,7 @@ async def test_ingress_traefik_k8s(ops_test, zinc_deploy_kwargs):
         ops_test.model.deploy(
             TRAEFIK,
             application_name=TRAEFIK,
-            channel="stable",
+            channel="edge",
             config={"routing_mode": "subdomain", "external_hostname": "foo.bar"},
             trust=True,
         ),
