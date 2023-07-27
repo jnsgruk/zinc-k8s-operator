@@ -36,7 +36,7 @@ async def test_ingress_traefik_k8s(ops_test, zinc_deploy_kwargs):
     await ops_test.model.wait_for_idle(apps=apps, status="active", timeout=1000)
 
     result = await _retrieve_proxied_endpoints(ops_test, TRAEFIK)
-    assert result.get(ZINC, None) == {"url": f"http://{ops_test.model_name}-{ZINC}.foo.bar:80/"}
+    assert result.get(ZINC, None) == {"url": f"http://{ops_test.model_name}-{ZINC}.foo.bar/"}
 
 
 async def test_ingress_functions_correctly(ops_test):

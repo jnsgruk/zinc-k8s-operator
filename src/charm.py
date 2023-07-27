@@ -12,7 +12,7 @@ from charms.grafana_k8s.v0.grafana_dashboard import GrafanaDashboardProvider
 from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
 from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
-from charms.traefik_k8s.v1.ingress import IngressPerAppRequirer
+from charms.traefik_k8s.v2.ingress import IngressPerAppRequirer
 from zinc import Zinc
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,9 @@ class ZincCharm(ops.CharmBase):
             self, jobs=[{"static_configs": [{"targets": [f"*:{self._zinc.port}"]}]}]
         )
 
-        self._ingress = IngressPerAppRequirer(self, port=self._zinc.port)
+        self._ingress = IngressPerAppRequirer(
+            self, host=f"{self.app.name}.{self.model.name}.svc.cluster.local", port=self._zinc.port
+        )
 
     def _on_zinc_pebble_ready(self, event: ops.WorkloadEvent):
         """Define and start a workload using the Pebble API."""
