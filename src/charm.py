@@ -85,16 +85,18 @@ class ZincCharm(ops.CharmBase):
 
         # If the secret already exists, grab its content and return it
         secret_id = relation.data[self.app].get("initial-admin-password", None)
-
         if secret_id:
             secret = self.model.get_secret(id=secret_id)
             return secret.peek_content().get("password")
-        else:
+
+        if self.unit.is_leader():
             content = {"password": secrets.token_urlsafe(24)}
             secret = self.app.add_secret(content)
             # Store the secret id in the peer relation for other units if required
             relation.data[self.app]["initial-admin-password"] = secret.id
             return content["password"]
+        else:
+            return ""
 
 
 if __name__ == "__main__":  # pragma: nocover
