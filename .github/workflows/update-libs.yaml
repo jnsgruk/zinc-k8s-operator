@@ -37,7 +37,7 @@ jobs:
           commit-message: "chore: bump charm libraries"
           committer: "Github Actions <github-actions@github.com>"
           author: "Github Actions <github-actions@github.com>"
-          title: "Bump charm libraries"
+          title: "chore(deps): bump charm libraries"
           body: Automated action to fetch latest version of charm libraries.
           branch: "auto-libs"
           delete-branch: true

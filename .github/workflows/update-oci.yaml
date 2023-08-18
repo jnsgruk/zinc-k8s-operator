@@ -68,7 +68,7 @@ jobs:
           commit-message: "chore(deps): bump zinc version to ${{ needs.check-upstream.outputs.release }}"
           committer: "Github Actions <github-actions@github.com>"
           author: "Github Actions <github-actions@github.com>"
-          title: "Update to Zinc ${{ needs.check-upstream.outputs.release }}"
+          title: "chore(deps): bump to Zinc ${{ needs.check-upstream.outputs.release }}"
           body: Automated update to follow upstream [release](https://github.com/zinclabs/zinc/releases/tag/${{ needs.check-upstream.outputs.release }}) of Zinc ${{ needs.check-upstream.outputs.release }}.
           branch: "auto-${{ needs.check-upstream.outputs.release }}"
           delete-branch: true
