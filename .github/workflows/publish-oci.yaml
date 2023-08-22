@@ -19,16 +19,16 @@ jobs:
           sudo snap install yq --classic
           version="$(yq '.version' rockcraft.yaml)"
           echo "VERSION=$version" >> $GITHUB_OUTPUT
-      
+
       - id: rockcraft
         name: Build ROCK
         uses: canonical/craft-actions/rockcraft-pack@main
-      
+
       - name: Upload ROCK artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3
         with:
-            name: zinc-rock
-            path: ${{ steps.rockcraft.outputs.rock }}
+          name: zinc-rock
+          path: ${{ steps.rockcraft.outputs.rock }}
 
       - name: Upload ROCK to ghcr.io
         run: |
@@ -64,8 +64,8 @@ jobs:
           commit-message: "chore(deps): bump zinc container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
           committer: "Github Actions <github-actions@github.com>"
           author: "Github Actions <github-actions@github.com>"
-          title: "Update container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
-          body: "Update container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
+          title: "chore(deps): bump container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
+          body: "chore(deps): bump container image to `zinc:${{ steps.get_version.outputs.VERSION }}`"
           branch: "auto-container-${{ steps.get_version.outputs.VERSION }}"
           delete-branch: true
           reviewers: jnsgruk
