@@ -34,7 +34,7 @@ parts:
     source-type: git
     source-tag: v$CRAFT_PROJECT_VERSION
     build-snaps:
-      - go/latest/stable
+      - go/1.18/stable
       - node/18/stable
     build-environment:
       - CGO_ENABLED: 0
@@ -52,9 +52,9 @@ parts:
       go mod tidy
       go build \
         -ldflags="-s -w
-        -X github.com/zincsearch/zincsearch/pkg/meta.Version=${CRAFT_PROJECT_VERSION} \
-        -X github.com/zincsearch/zincsearch/pkg/meta.CommitHash=${COMMIT_HASH} \
-        -X github.com/zincsearch/zincsearch/pkg/meta.BuildDate=${BUILD_DATE}" \
+        -X github.com/zincsearch/zincsearch/pkg/meta.Version='${CRAFT_PROJECT_VERSION}' \
+        -X github.com/zincsearch/zincsearch/pkg/meta.CommitHash='${COMMIT_HASH}' \
+        -X github.com/zincsearch/zincsearch/pkg/meta.BuildDate='${BUILD_DATE}'" \
         -o zincsearch \
         cmd/zincsearch/main.go
     stage-packages:
@@ -72,7 +72,7 @@ parts:
     source-tag: v0.15.1
     source-subdir: images/build/go-runner
     build-snaps:
-      - go/latest/stable
+      - go/1.18/stable
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
