@@ -9,6 +9,7 @@ on:
       - ".github/workflows/update-oci.yaml"
       - ".gitignore"
       - "Dockerfile"
+      - "rockcraft.yaml"
   push:
     branches:
       - "renovate/**"
