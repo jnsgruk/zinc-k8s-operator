@@ -13,9 +13,7 @@ PASSWORD = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
 def _prime_password_secret(harness) -> str:
     id = harness.add_model_secret(owner=harness.charm.app, content={"password": PASSWORD})
-    rel_id = harness.add_relation("zinc-peers", "zinc-k8s")
-    harness.update_relation_data(rel_id, harness.charm.app.name, {"initial-admin-password": id})
-    return id
+    harness.add_relation("zinc-peers", "zinc-k8s", app_data={"initial-admin-password": id})
 
 
 @patch("charm.Zinc._request_version", lambda x: "0.2.6")
@@ -73,7 +71,7 @@ class TestCharm(unittest.TestCase):
 
     def test_zinc_password_create(self):
         self.harness.set_leader(True)
-        self.harness.add_relation("zinc-peers", "zinc-k8s")
+        self.harness.add_relation("zinc-peers", "zinc-k8s", app_data={})
         new_secret = self.harness.charm._generated_password()
         self.assertEqual(len(new_secret), 32)
 
