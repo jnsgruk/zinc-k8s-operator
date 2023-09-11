@@ -50,7 +50,7 @@ jobs:
           sed -i -e "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${version}/g" metadata.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
-      - uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 # v1
+      - uses: tibdex/github-app-token@0914d50df753bbc42180d982a6550f195390069f # v2
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
