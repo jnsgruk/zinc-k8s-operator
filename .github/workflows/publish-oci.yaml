@@ -25,7 +25,7 @@ jobs:
         uses: canonical/craft-actions/rockcraft-pack@main
 
       - name: Upload ROCK artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
         with:
           name: zinc-rock
           path: ${{ steps.rockcraft.outputs.rock }}
@@ -50,7 +50,7 @@ jobs:
           sed -i -e "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${version}/g" metadata.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
-      - uses: tibdex/github-app-token@0d49dd721133f900ebd5e0dff2810704e8defbc6 # v1
+      - uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 # v1
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
