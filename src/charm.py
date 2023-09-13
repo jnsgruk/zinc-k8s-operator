@@ -53,7 +53,10 @@ class ZincCharm(ops.CharmBase):
         )
 
         self._ingress = IngressPerAppRequirer(
-            self, host=f"{self.app.name}.{self.model.name}.svc.cluster.local", port=self._zinc.port
+            self,
+            host=f"{self.app.name}.{self.model.name}.svc.cluster.local",
+            port=self._zinc.port,
+            strip_prefix=True,
         )
 
     def _on_zinc_pebble_ready(self, event: ops.WorkloadEvent):
