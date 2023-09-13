@@ -1,5 +1,5 @@
 name: zinc
-version: 0.4.8
+version: 0.4.9
 license: Apache-2.0
 base: bare
 build_base: ubuntu:22.04
