@@ -1,2 +1,2 @@
-ops==2.6.0
+ops==2.7.0
 jsonschema==4.19.1
