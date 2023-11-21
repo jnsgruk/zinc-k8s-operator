@@ -39,7 +39,6 @@ parts:
       asdf plugin add nodejs
       asdf install nodejs "$NODE_VERSION"
       asdf global nodejs "$NODE_VERSION"
-
   zinc:
     after: [nodejs]
     plugin: go
@@ -57,7 +56,7 @@ parts:
 
       # Use the version of nodejs/yarn we configured before
       source "$(pwd)/../../nodejs/build/asdf.sh"
-      
+
       # Build the web ui, which is embedded in the go binary later
       pushd web
       npm install
