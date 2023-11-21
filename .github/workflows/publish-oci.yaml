@@ -19,16 +19,15 @@ jobs:
           sudo snap install yq --classic
           version="$(yq '.version' rockcraft.yaml)"
           echo "VERSION=$version" >> $GITHUB_OUTPUT
+      
+      - name: Setup LXD
+        uses: canonical/setup-lxd@v0.1.1
 
       - id: rockcraft
         name: Build ROCK
-        uses: canonical/craft-actions/rockcraft-pack@main
-
-      - name: Upload ROCK artifact
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
-        with:
-          name: zinc-rock
-          path: ${{ steps.rockcraft.outputs.rock }}
+        run: |
+          sudo snap install rockcraft --classic
+          rockcraft pack --verbose
 
       - name: Upload ROCK to ghcr.io
         run: |

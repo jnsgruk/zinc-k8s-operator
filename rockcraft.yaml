@@ -2,7 +2,7 @@ name: zinc
 version: 0.4.9
 license: Apache-2.0
 base: bare
-build_base: ubuntu:22.04
+build_base: ubuntu@22.04
 platforms:
   amd64:
 summary: Zinc is a lightweight search engine and alternative to Elasticsearch.
@@ -28,14 +28,26 @@ services:
     startup: enabled
     command: /bin/go-runner --log-file=/var/lib/zincsearch/zinc.log --also-stdout=true --redirect-stderr=true /bin/zincsearch
 parts:
+  nodejs:
+    plugin: dump
+    source: https://github.com/asdf-vm/asdf.git
+    source-tag: v0.13.1
+    build-environment:
+      - NODE_VERSION: 18.16.0
+    override-build: |
+      source "./asdf.sh"
+      asdf plugin add nodejs
+      asdf install nodejs "$NODE_VERSION"
+      asdf global nodejs "$NODE_VERSION"
+
   zinc:
+    after: [nodejs]
     plugin: go
     source: https://github.com/zincsearch/zincsearch
     source-type: git
     source-tag: v$CRAFT_PROJECT_VERSION
     build-snaps:
       - go/1.18/stable
-      - node/18/stable
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
@@ -43,6 +55,9 @@ parts:
       COMMIT_HASH="$(git rev-parse HEAD)"
       BUILD_DATE="$(date -u '+%Y-%m-%d_%I:%M:%S%p-GMT')"
 
+      # Use the version of nodejs/yarn we configured before
+      source "$(pwd)/../../nodejs/build/asdf.sh"
+      
       # Build the web ui, which is embedded in the go binary later
       pushd web
       npm install
