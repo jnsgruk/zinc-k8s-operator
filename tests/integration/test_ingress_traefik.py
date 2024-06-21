@@ -7,6 +7,7 @@ import json
 
 import pytest
 import requests
+import sh
 
 from . import ZINC
 
@@ -40,10 +41,14 @@ async def test_ingress_traefik_k8s(ops_test, zinc_deploy_kwargs):
 
 
 async def test_ingress_functions_correctly(ops_test):
-    status = await ops_test.model.get_status()  # noqa: F821
-    address = status["applications"][TRAEFIK]["public-address"]
+    result = sh.kubectl(
+        *f"-n {ops_test.model.name} get svc/{TRAEFIK}-lb -o=jsonpath='{{.status.loadBalancer.ingress[0].ip}}'".split()
+    )
+    ip_address = result.strip("'")
+
     r = requests.get(
-        f"http://{address}:80/version", headers={"Host": f"{ops_test.model_name}-{ZINC}.foo.bar"}
+        f"http://{ip_address}:80/version",
+        headers={"Host": f"{ops_test.model_name}-{ZINC}.foo.bar"},
     )
 
     assert r.status_code == 200
