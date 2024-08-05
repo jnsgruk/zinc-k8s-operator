@@ -46,7 +46,7 @@ jobs:
       - name: Update charm metadata
         run: |
           version=${{ steps.get_version.outputs.VERSION }}
-          sed -i -e "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${version}/g" metadata.yaml
+          sed -i -e "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${version}/g" charmcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2

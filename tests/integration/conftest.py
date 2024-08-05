@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @fixture(scope="module")
 async def zinc_deploy_kwargs(ops_test: OpsTest, request):
-    zinc_metadata = yaml.safe_load(Path("./metadata.yaml").read_text())
+    zinc_metadata = yaml.safe_load(Path("./charmcraft.yaml").read_text())
     zinc_channel = request.config.getoption("channel", default=None)
     # Set some deploy args that are consistent irrespective of charm src
     args = {"application_name": ZINC, "trust": True}
