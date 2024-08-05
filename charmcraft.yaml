@@ -23,10 +23,11 @@ platforms:
 
 parts:
   charm:
-    build-packages:
-      - cargo
-      - pkg-config
-      - rustc
+    build-snaps:
+      - rustup
+    override-build: |
+      rustup toolchain install stable
+      craftctl default
 
 assumes:
   - juju >= 3.1
