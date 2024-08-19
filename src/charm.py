@@ -13,6 +13,7 @@ from charms.loki_k8s.v0.loki_push_api import LogProxyConsumer
 from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
 from charms.prometheus_k8s.v0.prometheus_scrape import MetricsEndpointProvider
 from charms.traefik_k8s.v2.ingress import IngressPerAppRequirer
+
 from zinc import Zinc
 
 logger = logging.getLogger(__name__)
