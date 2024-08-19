@@ -4,9 +4,10 @@
 import unittest
 from unittest.mock import Mock, PropertyMock, patch
 
-from charm import ZincCharm
 from ops.model import ActiveStatus
 from ops.testing import Harness
+
+from charm import ZincCharm
 
 PASSWORD = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
 
