@@ -14,6 +14,9 @@
     "regexManagers:dockerfileVersions"
   ],
   "automergeType": "branch",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "packageRules": [
     {
       "groupName": "github actions",
@@ -22,9 +25,8 @@
       "schedule": ["on monday"]
     },
     {
-      "groupName": "testing deps",
-      "matchFiles": ["tox.ini"],
-      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
+      "groupName": "python packages",
+      "matchManagers": ["pep621"],
       "automerge": true,
       "schedule": ["on monday"]
     },
@@ -34,14 +36,6 @@
       "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
       "automerge": true,
       "schedule": ["on monday"]
-    }
-  ],
-  "regexManagers": [
-    {
-      "fileMatch": ["tox.ini"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+)\n\\s+(?<depName>.*?)==(?<currentValue>.*?)\\n"
-      ]
     }
   ]
 }

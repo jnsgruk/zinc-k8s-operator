@@ -2,9 +2,9 @@
 # See LICENSE file for licensing details.
 
 import unittest
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import PropertyMock, patch
 
-from ops.model import ActiveStatus
+from ops import ActiveStatus
 from ops.testing import Harness
 
 from charm import ZincCharm
@@ -58,12 +58,11 @@ class TestCharm(unittest.TestCase):
             self.assertEqual(self.harness.get_workload_version(), "0.4.0")
 
     def test_get_admin_password_action(self):
-        mock_event = Mock()
         _prime_password_secret(self.harness)
-        # Trigger the event handler
-        self.harness.charm._on_get_admin_password(mock_event)
-        # Make sure we return the generated password
-        mock_event.called_once_with({"admin-password": PASSWORD})
+        out = self.harness.run_action("get-admin-password")
+        self.assertDictEqual(
+            out.results, {"admin-password": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"}
+        )
 
     def test_zinc_password_no_relation(self):
         self.harness.set_leader(True)
