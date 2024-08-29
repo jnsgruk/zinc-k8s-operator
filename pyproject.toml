@@ -1,4 +1,25 @@
-# Testing tools configuration
+[project]
+name = "zinc-k8s-operator"
+version = "0.1.0"
+requires-python = ">=3.10"
+
+dependencies = ["ops", "jsonschema", "pydantic", "cosl"]
+
+[project.optional-dependencies]
+dev = [
+    "cosl",
+    "coverage[toml]",
+    "juju",
+    "pydantic",
+    "pytest-operator",
+    "pytest-asyncio",
+    "pytest",
+    "ruff",
+    "tenacity",
+    "tox-uv",
+    "sh",
+]
+
 [tool.coverage.run]
 branch = true
 

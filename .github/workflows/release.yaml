@@ -28,14 +28,14 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Select charmhub channel
-        uses: canonical/charming-actions/channel@46fe0c6d63324b5f74ce0e65d6ab47051953cc48 # 2.6.2
+        uses: canonical/charming-actions/channel@2.6.2
         id: channel
       - name: Upload charm to charmhub
-        uses: canonical/charming-actions/upload-charm@46fe0c6d63324b5f74ce0e65d6ab47051953cc48 # 2.6.2
+        uses: canonical/charming-actions/upload-charm@2.6.2
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
