@@ -12,22 +12,30 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@v4
       - name: Install dependencies
-        run: python3 -m pip install tox
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          source $HOME/.cargo/env
+          uv venv && source .venv/bin/activate
+          uv pip install -r requirements-dev.txt
       - name: Run linters
-        run: tox -e lint
+        run: uv run tox -e lint
 
   unit-test:
     name: Unit tests
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@v4
       - name: Install dependencies
-        run: python -m pip install tox
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          source $HOME/.cargo/env
+          uv venv && source .venv/bin/activate
+          uv pip install -r requirements-dev.txt
       - name: Run tests
-        run: tox -e unit
+        run: uv run tox -e unit
 
   lib-check:
     name: Check libraries
@@ -57,9 +65,15 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
           provider: microk8s
-          juju-channel: 3.5/stable
           channel: 1.28-strict/stable
+          juju-channel: 3.5/stable
           microk8s-group: snap_microk8s
           microk8s-addons: "hostpath-storage dns metallb:10.64.140.43-10.64.140.49"
+      - name: Install dependencies
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          source $HOME/.cargo/env
+          uv venv && source .venv/bin/activate
+          uv pip install -r requirements-dev.txt
       - name: Run integration tests
-        run: tox -e integration
+        run: uv run tox -e integration
