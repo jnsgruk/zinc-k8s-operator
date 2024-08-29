@@ -124,7 +124,7 @@ pyasn1-modules==0.4.0
     # via google-auth
 pycparser==2.22
     # via cffi
-pydantic==1.10.18
+pydantic==2.8.2
     # via
     #   zinc-k8s-operator (pyproject.toml)
     #   cosl

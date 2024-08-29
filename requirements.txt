@@ -14,7 +14,7 @@ ops==2.16.0
     # via
     #   zinc-k8s-operator (pyproject.toml)
     #   cosl
-pydantic==1.10.18
+pydantic==2.8.2
     # via
     #   zinc-k8s-operator (pyproject.toml)
     #   cosl
