@@ -38,6 +38,10 @@ decorator==5.1.1
     #   ipython
 distlib==0.3.8
     # via virtualenv
+exceptiongroup==1.2.2
+    # via
+    #   ipython
+    #   pytest
 executing==2.0.1
     # via stack-data
 filelock==3.15.4
@@ -200,6 +204,13 @@ tenacity==9.0.0
     # via
     #   zinc-k8s-operator (pyproject.toml)
     #   cosl
+tomli==2.0.1
+    # via
+    #   coverage
+    #   ipdb
+    #   pyproject-api
+    #   pytest
+    #   tox
 toposort==1.10
     # via juju
 tox==4.18.0
@@ -213,6 +224,7 @@ traitlets==5.14.3
 typing-extensions==4.12.2
     # via
     #   cosl
+    #   ipython
     #   pydantic
     #   typing-inspect
 typing-inspect==0.9.0
