@@ -17,16 +17,12 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          source $HOME/.cargo/env
-          uv venv && source .venv/bin/activate
-          uv pip install -r requirements-dev.txt
+        run: sudo snap install --classic astral-uv
 
       - name: Run update
         run: |
-          uv run tox -e update-dependencies
-          uv run tox -e generate-requirements
+          make update-dependencies
+          make generate-requirements
 
       - uses: tibdex/github-app-token@v2
         id: generate-token

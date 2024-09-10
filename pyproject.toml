@@ -16,7 +16,6 @@ dev = [
     "pytest",
     "ruff",
     "tenacity",
-    "tox-uv",
     "sh",
 ]
 

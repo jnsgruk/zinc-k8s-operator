@@ -14,13 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          source $HOME/.cargo/env
-          uv venv && source .venv/bin/activate
-          uv pip install -r requirements-dev.txt
+        run: sudo snap install --classic astral-uv
       - name: Run linters
-        run: uv run tox -e lint
+        run: make lint
 
   unit-test:
     name: Unit tests
@@ -29,13 +25,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          source $HOME/.cargo/env
-          uv venv && source .venv/bin/activate
-          uv pip install -r requirements-dev.txt
+        run: sudo snap install --classic astral-uv
       - name: Run tests
-        run: uv run tox -e unit
+        run: make unit
 
   lib-check:
     name: Check libraries
@@ -70,10 +62,6 @@ jobs:
           microk8s-group: snap_microk8s
           microk8s-addons: "hostpath-storage dns metallb:10.64.140.43-10.64.140.49"
       - name: Install dependencies
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          source $HOME/.cargo/env
-          uv venv && source .venv/bin/activate
-          uv pip install -r requirements-dev.txt
+        run: sudo snap install --classic astral-uv
       - name: Run integration tests
-        run: uv run tox -e integration
+        run: make integration
