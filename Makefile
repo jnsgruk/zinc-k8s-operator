@@ -8,8 +8,6 @@ export PYTHONPATH = $(PROJECT):$(PROJECT)/lib:$(SRC)
 
 update-dependencies:
 	uv lock -U --no-cache
-	uv pip compile -q --no-cache pyproject.toml -o requirements.txt
-	uv pip compile -q --no-cache --all-extras pyproject.toml -o requirements-dev.txt
 
 generate-requirements:
 	uv pip compile -q --no-cache pyproject.toml -o requirements.txt
@@ -24,7 +22,7 @@ fmt:
 	uv tool run ruff format $(ALL)
 
 unit:
-	uv tool run --with-requirements $(PROJECT)requirements-dev.txt \
+	uv run --all-extras \
 		coverage run \
 		--source=$(SRC) \
 		-m pytest \
@@ -33,10 +31,10 @@ unit:
 		-v \
 		-s \
 		$(ARGS)
-	uv tool run --with-requirements $(PROJECT)requirements-dev.txt coverage report
+	uv run --all-extras coverage report
 
 integration:
-	uv tool run --with-requirements $(PROJECT)requirements-dev.txt \
+	uv run --all-extras \
 		pytest -v \
 		-s \
 		--tb native \

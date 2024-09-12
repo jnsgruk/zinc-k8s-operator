@@ -8,3 +8,4 @@ __pycache__/
 *.rock
 .vscode/*
 *.egg-info/
+requirements*.txt
