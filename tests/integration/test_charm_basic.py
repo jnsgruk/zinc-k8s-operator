@@ -27,9 +27,13 @@ async def _get_password(ops_test: OpsTest) -> str:
 
 
 @mark.abort_on_fail
-async def test_deploy(ops_test: OpsTest, zinc_deploy_kwargs):
+async def test_deploy(ops_test: OpsTest, zinc_charm, zinc_oci_image):
     await asyncio.gather(
-        ops_test.model.deploy(**await zinc_deploy_kwargs),
+        ops_test.model.deploy(
+            zinc_charm,
+            resources={"zinc-image": zinc_oci_image},
+            application_name=ZINC,
+        ),
         ops_test.model.wait_for_idle(apps=[ZINC], status="active", timeout=1000),
     )
 

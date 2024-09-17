@@ -15,12 +15,16 @@ TRAEFIK = "traefik-k8s"
 
 
 @pytest.mark.abort_on_fail
-async def test_path_ingress_traefik_k8s(ops_test, zinc_deploy_kwargs):
+async def test_path_ingress_traefik_k8s(ops_test, zinc_charm, zinc_oci_image):
     """Test that Zinc can be related with Traefik for ingress with path routing."""
     apps = [ZINC, TRAEFIK]
 
     await asyncio.gather(
-        ops_test.model.deploy(**await zinc_deploy_kwargs),
+        ops_test.model.deploy(
+            zinc_charm,
+            resources={"zinc-image": zinc_oci_image},
+            application_name=ZINC,
+        ),
         ops_test.model.deploy(
             TRAEFIK,
             application_name=TRAEFIK,

@@ -12,7 +12,6 @@ dev = [
     "juju",
     "pydantic",
     "pytest-operator",
-    "pytest-asyncio",
     "pytest",
     "ruff",
     "tenacity",
@@ -26,6 +25,7 @@ branch = true
 show_missing = true
 
 [tool.pytest.ini_options]
+asyncio_mode = "auto"
 minversion = "6.0"
 log_cli_level = "INFO"
 
