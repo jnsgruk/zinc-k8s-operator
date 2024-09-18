@@ -21,21 +21,25 @@ this operator.
 
 ## Developing
 
-You can use the environments created by `tox` for development:
+This project uses [`uv`](https://github.com/astral-sh/uv) for managing dependencies and virtual
+environments.
+
+You can create a virtual environment manually should you wish, though most of that is taken
+care of automatically if you use the `Makefile` provided:
 
 ```shell
-tox --notest -e unit
-source .tox/unit/bin/activate
+make fmt           # update your code according to linting rules
+make lint          # code style
+make unit          # unit tests
+make integration   # integration tests
 ```
 
-### Testing
+To create the environment manually:
 
-```shell
-tox -e fmt           # update your code according to linting rules
-tox -e lint          # code style
-tox -e unit          # unit tests
-tox -e integration   # integration tests
-tox                  # runs 'lint' and 'unit' environments
+```bash
+uv venv
+source .venv/bin/activate
+uv sync --all-extras
 ```
 
 ## Build charm
@@ -54,6 +58,6 @@ juju add-model dev
 # Enable DEBUG logging
 juju model-config logging-config="<root>=INFO;unit=DEBUG"
 # Deploy the charm
-juju deploy ./zinc-k8s_ubuntu-20.04-amd64.charm \
-    --resource zinc-image=public.ecr.aws/m5j1b6u0/zinc:v0.1.1 \
+juju deploy ./zinc-k8s_amd64.charm \
+  --resource zinc-image="$(yq '.resources.zinc-image.upstream-source' charmcraft.yaml)"
 ```
