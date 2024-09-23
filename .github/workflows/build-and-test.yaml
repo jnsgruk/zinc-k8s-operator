@@ -53,6 +53,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      # See: https://github.com/charmed-kubernetes/actions-operator/issues/82
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
