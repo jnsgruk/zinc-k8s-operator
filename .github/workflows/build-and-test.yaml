@@ -43,30 +43,76 @@ jobs:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-  integration-test:
-    name: Integration tests (microk8s)
+  pack-charm:
+    name: Build charm
     runs-on: ubuntu-24.04
-    needs:
-      - lint
-      - unit-test
-      - lib-check
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      # See: https://github.com/charmed-kubernetes/actions-operator/issues/82
-      - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/checkout@v4
+
+      - name: Setup LXD
+        uses: canonical/setup-lxd@main
+
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+
+      - name: Pack charm
+        run: charmcraft pack -v
+
+      - name: Upload charm artifact
+        uses: actions/upload-artifact@v4
         with:
-          python-version: "3.12"
-      - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@main
+          name: charm
+          path: ./*.charm
+
+  define-matrix:
+    name: Define spread matrix
+    runs-on: ubuntu-24.04
+    outputs:
+      suites: ${{ steps.suites.outputs.suites }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+
+      - name: Generate matrix list
+        id: suites
+        run: |
+          list="$(charmcraft test --list github-ci | sed "s|github-ci:ubuntu-24.04:tests/spread/||g" | jq -r -ncR '[inputs | select(length>0)]')"
+          echo "suites=$list"
+          echo "suites=$list" >> $GITHUB_OUTPUT
+
+  integration-test:
+    name: Spread (${{ matrix.suite }})
+    runs-on: ubuntu-24.04
+    needs:
+      - define-matrix
+      - lib-check
+      - lint
+      - pack-charm
+      - unit-test
+    strategy:
+      matrix:
+        suite: ${{ fromJSON(needs.define-matrix.outputs.suites) }}
+    # Allow Juju 3.6 jobs to fail, given that it's in beta
+    continue-on-error: ${{ contains(matrix.suite, 'juju_3_6') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download charm artifact
+        uses: actions/download-artifact@v4
         with:
-          provider: microk8s
-          channel: 1.28-strict/stable
-          juju-channel: 3.5/stable
-          microk8s-group: snap_microk8s
-          microk8s-addons: "hostpath-storage dns metallb:10.64.140.43-10.64.140.49"
-      - name: Install dependencies
-        run: sudo snap install --classic astral-uv
+          name: charm
+
+      - name: Setup LXD
+        uses: canonical/setup-lxd@main
+
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+
       - name: Run integration tests
-        run: make integration
+        run: |
+          charmcraft test -v "github-ci:ubuntu-24.04:tests/spread/${{ matrix.suite }}"
