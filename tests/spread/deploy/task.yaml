@@ -1,0 +1,23 @@
+summary: Run basic deployment tests
+kill-timeout: 60m
+systems:
+  - ubuntu-24.04
+
+prepare: |
+  . "${CRAFT_TEST_PATH}/common.sh"
+  setup_test_environment
+
+execute: |
+  pushd "$PROJECT_PATH"
+  args="tests/integration/test_charm_basic.py"
+
+  if [[ -f "$PWD/zinc-k8s_amd64.charm" ]]; then
+    args="--charm-path=$PWD/zinc-k8s_amd64.charm $args"
+  fi
+
+  make integration ARGS="$args"
+  popd
+
+restore: |
+  . "${CRAFT_TEST_PATH}/common.sh"
+  restore_test_environment

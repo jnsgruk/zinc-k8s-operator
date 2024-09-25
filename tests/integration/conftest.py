@@ -11,8 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 @fixture(scope="module")
-async def zinc_charm(ops_test: OpsTest):
+async def zinc_charm(request, ops_test: OpsTest):
     """Zinc charm used for integration testing."""
+    charm_file = request.config.getoption("--charm-path")
+    if charm_file:
+        return charm_file
+
     charm = await ops_test.build_charm(".")
     return charm
 
