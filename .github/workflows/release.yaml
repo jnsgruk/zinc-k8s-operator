@@ -23,22 +23,56 @@ jobs:
     secrets:
       CHARMHUB_TOKEN: "${{ secrets.CHARMHUB_TOKEN }}"
 
-  release-to-charmhub:
-    name: Release to CharmHub
+  define-matrix:
+    name: Define charms upload matrix
+    runs-on: ubuntu-24.04
     needs:
       - test
+    outputs:
+      charms: ${{ steps.charms.outputs.charms }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+
+      - name: Download charm artifact(s)
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          name: charm
+
+      - name: Generate matrix list
+        id: charms
+        run: |
+          list="$(ls *.charm | jq -r -ncR '[input]')"
+          echo "charms=$list"
+          echo "charms=$list" >> $GITHUB_OUTPUT
+
+  release-to-charmhub:
+    name: Release to CharmHub
     runs-on: ubuntu-24.04
+    needs:
+      - define-matrix
+    strategy:
+      matrix:
+        charm: ${{ fromJSON(needs.define-matrix.outputs.charms) }}
     steps:
       - name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
           fetch-depth: 0
+
       - name: Select charmhub channel
-        uses: canonical/charming-actions/channel@934193396735701141a1decc3613818e412da606 # 2.6.3
         id: channel
+        uses: canonical/charming-actions/channel@934193396735701141a1decc3613818e412da606 # 2.6.3
+
+      - name: Download charm artifact(s)
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          name: charm
+
       - name: Upload charm to charmhub
         uses: canonical/charming-actions/upload-charm@934193396735701141a1decc3613818e412da606 # 2.6.3
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           channel: "${{ steps.channel.outputs.name }}"
+          built-charm-path: "${{ matrix.charm }}"
