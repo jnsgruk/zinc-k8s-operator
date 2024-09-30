@@ -5,47 +5,41 @@
 
 import base64
 import gzip
+import json
 import re
+from urllib.request import Request, urlopen
 
-import requests
-import sh
-from pytest import mark
-
-from . import ZINC
-from .juju import juju, retry, run_action, status, wait_for_idle
+from . import ZINC, retry
+from .juju import Juju
 
 
 def _get_password() -> str:
-    result = run_action(f"{ZINC}/0", "get-admin-password")
+    result = Juju.run(f"{ZINC}/0", "get-admin-password")
     return str(result["admin-password"])
 
 
-@mark.abort_on_fail
 def test_deploy(zinc_charm, zinc_oci_image):
-    print(sh.ls("-la", zinc_charm))
-    juju("deploy", zinc_charm, ZINC, "--resource", f"zinc-image={zinc_oci_image}")
-    wait_for_idle([ZINC])
+    Juju.deploy(zinc_charm, alias=ZINC, resources={"zinc-image": zinc_oci_image})
+    Juju.wait_for_idle([ZINC], timeout=1000)
 
 
-@mark.abort_on_fail
 @retry(retry_num=10, retry_sleep_sec=3)
 def test_application_is_up():
-    address = status()["applications"][ZINC]["address"]
-    response = requests.get(f"http://{address}:4080/version")
-    return response.status_code == 200
+    address = Juju.status()["applications"][ZINC]["address"]
+    response = urlopen(f"http://{address}:4080/version")
+
+    assert response.status == 200
 
 
-@mark.abort_on_fail
 def test_get_admin_password_action():
     password = _get_password()
     assert re.match("[A-Za-z0-9-_]{24}", password)
 
 
-@mark.abort_on_fail
 @retry(retry_num=5, retry_sleep_sec=3)
 def test_can_auth_with_zinc():
     # Now try to actually hit the service
-    address = status()["applications"][ZINC]["address"]
+    address = Juju.status()["applications"][ZINC]["address"]
 
     # Load sample data from quickstart docs
     # https://github.com/zinclabs/zincsearch-docs/blob/beca3d17e7d3da15cbf5abfffefffdcbb833758d/docs/quickstart.md?plain=1#L114
@@ -57,14 +51,13 @@ def test_can_auth_with_zinc():
     creds = base64.b64encode(bytes(f"admin:{password}", "utf-8")).decode("utf-8")
 
     # Bulk ingest some data
-    res = requests.post(
-        url=f"http://{address}:4080/api/_bulk",
-        headers={"Content-type": "application/json", "Authorization": f"Basic {creds}"},
-        data=data,
-    )
+    req = Request(f"http://{address}:4080/api/_bulk")
+    req.add_header("Content-Type", "application/json")
+    req.add_header("Authorization", f"Basic {creds}")
 
-    results = res.json()
+    response = urlopen(req, data)
+    response_data = json.loads(response.read())
 
-    assert res.status_code == 200
-    assert results["message"] == "bulk data inserted"
-    assert results["record_count"] == 36935
+    assert response.status == 200
+    assert response_data["message"] == "bulk data inserted"
+    assert response_data["record_count"] == 36935

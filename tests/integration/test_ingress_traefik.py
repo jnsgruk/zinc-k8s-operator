@@ -4,63 +4,38 @@
 
 
 import json
+from urllib.request import Request, urlopen
 
-import pytest
-import requests
-import sh
-
-from . import ZINC
-from .juju import juju, run_action, status, wait_for_idle
-
-TRAEFIK = "traefik-k8s"
+from . import TRAEFIK, ZINC, retry
+from .juju import Juju
 
 
-@pytest.mark.abort_on_fail
-def deploy(zinc_charm, zinc_oci_image):
+def test_deploy(zinc_charm, zinc_oci_image):
     """Test that Zinc can be related with Traefik for ingress."""
     apps = [ZINC, TRAEFIK]
-    juju("deploy", zinc_charm, ZINC, "--resource", f"zinc-image={zinc_oci_image}")
-    juju(
-        "deploy",
-        TRAEFIK,
-        "--channel=latest/edge",
-        "--config",
-        "routing_mode=subdomain",
-        "--config",
-        "external_hostname=foo.bar",
-    )
+    traefik_config = {"routing_mode": "subdomain", "external_hostname": "foo.bar"}
 
-    juju("integrate", *apps)
-    wait_for_idle(apps)
+    Juju.deploy(zinc_charm, alias=ZINC, resources={"zinc-image": zinc_oci_image})
+    Juju.deploy(TRAEFIK, config=traefik_config, trust=True)
+    Juju.integrate(*apps)
+    Juju.wait_for_idle(apps, timeout=1000)
 
 
-@pytest.mark.abort_on_fail
 def test_ingress_setup():
     """Test that Zinc/Traefik are configured correctly."""
-    model_name = status()["model"]["name"]
-    result = run_action(f"{TRAEFIK}/0", "show-proxied-endpoints")
+    result = Juju.run(f"{TRAEFIK}/0", "show-proxied-endpoints")
     j = json.loads(result["proxied-endpoints"])
-    assert j[ZINC] == {"url": f"http://{model_name}-{ZINC}.foo.bar/"}
+
+    assert j[ZINC] == {"url": f"http://{Juju.model_name()}-{ZINC}.foo.bar/"}
 
 
-@pytest.mark.abort_on_fail
-def test_ingress_functions_correctly():
-    model_name = status()["model"]["name"]
+@retry(retry_num=24, retry_sleep_sec=5)
+def test_ingress_functions_correctly(traefik_lb_ip):
+    req = Request(f"http://{traefik_lb_ip}:80/version")
+    req.add_header("Host", f"{Juju.model_name()}-{ZINC}.foo.bar")
 
-    result = sh.kubectl(
-        "-n",
-        model_name,
-        "get",
-        "service",
-        f"{TRAEFIK}-lb",
-        "-o=jsonpath='{.status.loadBalancer.ingress[0].ip}'",
-    )
-    ip_address = result.strip("'")
+    response = urlopen(req)
+    response_data = json.loads(response.read())
 
-    r = requests.get(
-        f"http://{ip_address}:80/version",
-        headers={"Host": f"{model_name}-{ZINC}.foo.bar"},
-    )
-
-    assert r.status_code == 200
-    assert "version" in r.json()
+    assert response.status == 200
+    assert "version" in response_data

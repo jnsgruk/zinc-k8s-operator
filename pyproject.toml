@@ -6,17 +6,7 @@ requires-python = ">=3.10"
 dependencies = ["ops", "jsonschema", "pydantic", "cosl"]
 
 [project.optional-dependencies]
-dev = [
-    "cosl",
-    "coverage[toml]",
-    "juju",
-    "pydantic",
-    "pytest-operator",
-    "pytest",
-    "ruff",
-    "tenacity",
-    "sh",
-]
+dev = ["cosl", "coverage[toml]", "pydantic", "pytest", "ruff"]
 
 [tool.coverage.run]
 branch = true
@@ -25,7 +15,6 @@ branch = true
 show_missing = true
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 minversion = "6.0"
 log_cli_level = "INFO"
 

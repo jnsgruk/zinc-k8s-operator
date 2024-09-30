@@ -2,49 +2,37 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-import asyncio
-import logging
 
 from pytest import mark
 
 from . import ZINC
-
-logger = logging.getLogger(__name__)
+from .juju import Juju
 
 O11Y_CHARMS = ["prometheus-k8s", "grafana-k8s", "loki-k8s", "parca-k8s"]
 O11Y_RELS = ["metrics-endpoint", "grafana-dashboard", "log-proxy", "profiling-endpoint"]
 ALL_CHARMS = [ZINC, *O11Y_CHARMS]
 
 
-@mark.abort_on_fail
-async def test_deploy_charms(ops_test, zinc_charm, zinc_oci_image):
-    await asyncio.gather(
-        ops_test.model.deploy(
-            zinc_charm,
-            resources={"zinc-image": zinc_oci_image},
-            application_name=ZINC,
-        ),
-        ops_test.model.deploy("prometheus-k8s", channel="stable", trust=True),
-        ops_test.model.deploy("loki-k8s", channel="stable", trust=True),
-        ops_test.model.deploy("grafana-k8s", channel="stable", trust=True),
-        ops_test.model.deploy("parca-k8s", channel="edge", trust=True),
-        ops_test.model.wait_for_idle(apps=ALL_CHARMS, status="active", timeout=1000),
-    )
+def test_deploy_charms(zinc_charm, zinc_oci_image):
+    Juju.deploy(zinc_charm, alias=ZINC, resources={"zinc-image": zinc_oci_image})
+
+    for charm in O11Y_CHARMS:
+        Juju.deploy(charm, trust=True)
+
+    Juju.wait_for_idle(ALL_CHARMS, timeout=1000)
 
 
-@mark.abort_on_fail
 @mark.parametrize("endpoint,remote", list(zip(O11Y_RELS, O11Y_CHARMS)))
-async def test_create_relation(ops_test, endpoint, remote):
+def test_create_relation(endpoint, remote):
     # Create the relation
-    await ops_test.model.integrate(f"{ZINC}:{endpoint}", remote)
+    Juju.integrate(f"{ZINC}:{endpoint}", remote)
     # Wait for the two apps to quiesce
-    await ops_test.model.wait_for_idle(apps=[ZINC, remote], status="active", timeout=1000)
+    Juju.wait_for_idle([ZINC, remote], timeout=1000)
 
 
-@mark.abort_on_fail
-@mark.parametrize("endpoint,remote_app", list(zip(O11Y_RELS, O11Y_CHARMS)))
-async def test_remove_relation(ops_test, endpoint, remote_app):
+@mark.parametrize("endpoint,remote", list(zip(O11Y_RELS, O11Y_CHARMS)))
+def test_remove_relation(endpoint, remote):
     # Remove the relation
-    await ops_test.model.applications[ZINC].remove_relation(endpoint, remote_app)
+    Juju.cli("remove-relation", f"{ZINC}:{endpoint}", remote)
     # Wait for the two apps to quiesce
-    await ops_test.model.wait_for_idle(apps=[ZINC], status="active", timeout=1000)
+    Juju.wait_for_idle([ZINC, remote], timeout=1000)

@@ -3,60 +3,98 @@
 # See LICENSE file for licensing details.
 
 
-import functools
 import json
-import logging
+import subprocess
 import time
-
-import sh
-
-
-def retry(retry_num, retry_sleep_sec):
-    def decorator(func):
-        # preserve information about the original function, or the func name will be "wrapper" not "func"
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            for attempt in range(retry_num):
-                try:
-                    return func(*args, **kwargs)  # should return the raw function's return value
-                except Exception:
-                    time.sleep(retry_sleep_sec)
-            logging.error("func %s retry failed", func)
-            raise Exception("Exceed max retry num: {} failed".format(retry_num))
-
-        return wrapper
-
-    return decorator
+from typing import Dict, List
 
 
-def juju(*args):
-    return sh.juju(*args, _env={"NO_COLOR": "true"})
+class Juju:
+    @classmethod
+    def model_name(cls):
+        return cls.status()["model"]["name"]
 
+    @classmethod
+    def status(cls):
+        args = ["status", "--format", "json"]
+        result = cls.cli(*args)
+        return json.loads(result.stdout)
 
-def status() -> dict:
-    s = juju("status", "--format", "json")
-    return json.loads(s)
+    @classmethod
+    def deploy(
+        cls,
+        charm: str,
+        *,
+        alias: str | None = None,
+        channel: str | None = None,
+        config: Dict[str, str] = {},
+        resources: Dict[str, str] = {},
+        trust: bool = False,
+    ):
+        args = ["deploy", charm]
 
+        if alias:
+            args = [*args, alias]
 
-def run_action(unit, action) -> dict:
-    action = juju("run", "--format=json", unit, action)
-    result = json.loads(action)
-    return result[unit]["results"]
+        if channel:
+            args = [*args, "--channel", channel]
 
+        if config:
+            for k, v in config.items():
+                args = [*args, "--config", f"{k}={v}"]
 
-def _unit_statuses(application: str):
-    units = status()["applications"][application]["units"]
-    return [
-        f"{units[u]['workload-status']['current']}/{units[u]['juju-status']['current']}"
-        for u in units
-    ]
+        if resources:
+            for k, v in resources.items():
+                args = [*args, "--resource", f"{k}={v}"]
 
+        if trust:
+            args = [*args, "--trust"]
 
-@retry(retry_num=24, retry_sleep_sec=5)
-def wait_for_idle(applications):
-    results = []
-    for a in applications:
-        results.extend(_unit_statuses(a))
+        return cls.cli(*args)
 
-    if set(results) != {"active/idle"}:
-        raise Exception
+    @classmethod
+    def integrate(cls, requirer: str, provider: str):
+        args = ["integrate", requirer, provider]
+        return cls.cli(*args)
+
+    @classmethod
+    def run(cls, unit: str, action: str):
+        args = ["run", "--format", "json", unit, action]
+        act = cls.cli(*args)
+        result = json.loads(act.stdout)
+        return result[unit]["results"]
+
+    @classmethod
+    def wait_for_idle(cls, applications: List[str], timeout: int):
+        start = time.time()
+        while time.time() - start < timeout:
+            try:
+                results = []
+                for a in applications:
+                    results.extend(cls._unit_statuses(a))
+                if set(results) != {"active/idle"}:
+                    raise Exception
+                else:
+                    break
+            except Exception:
+                time.sleep(1)
+
+    @classmethod
+    def cli(cls, *args):
+        proc = subprocess.run(
+            ["/snap/bin/juju", *args],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env={"NO_COLOR": "true"},
+        )
+        return proc
+
+    @classmethod
+    def _unit_statuses(cls, application: str):
+        units = cls.status()["applications"][application]["units"]
+        return [
+            f"{units[u]['workload-status']['current']}/{units[u]['juju-status']['current']}"
+            for u in units
+        ]
