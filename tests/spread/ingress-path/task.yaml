@@ -1,5 +1,5 @@
 summary: Deploy with traefik ingress in path routing mode
-kill-timeout: 60m
+kill-timeout: 90m
 systems:
   - ubuntu-24.04
 

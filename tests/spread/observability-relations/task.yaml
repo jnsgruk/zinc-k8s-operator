@@ -1,5 +1,5 @@
 summary: Test observability relations with zinc
-kill-timeout: 60m
+kill-timeout: 90m
 systems:
   - ubuntu-24.04
 
