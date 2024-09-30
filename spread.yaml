@@ -18,8 +18,8 @@ environment:
   LANG: "C.UTF-8"
   LANGUAGE: "en"
 
-  PROJECT_PATH: /home/spread/proj
-  CRAFT_TEST_PATH: /home/spread/proj/tests/spread/lib
+  PROJECT_PATH: /root/proj
+  CRAFT_TEST_PATH: /root/proj/tests/spread/lib
 
 backends:
   lxd:
@@ -84,12 +84,18 @@ suites:
     summary: Spread tests
 
 exclude:
-  - .git
-  - .tox
-  - .ruff_cache
   - .coverage
+  - .git
+  - .github
+  - .pytest_cache
+  - .ruff_cache
+  - .tox
+  - .venv
 
-path: /home/spread/proj
+# this needs to be under /root because spread executes the test scripts
+# as root, which means that juju can only see files in root's
+# home directory due to snap confinement.
+path: /root/proj
 
 prepare: |
   snap refresh --hold
