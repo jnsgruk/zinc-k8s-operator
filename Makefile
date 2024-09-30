@@ -35,7 +35,9 @@ unit:
 
 integration:
 	uv run --all-extras \
-		pytest -v \
+		pytest \
+		-v \
+		-x \
 		-s \
 		--tb native \
 		--ignore=$(TESTS)/unit \
