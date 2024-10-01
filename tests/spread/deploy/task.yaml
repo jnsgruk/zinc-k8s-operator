@@ -20,5 +20,7 @@ execute: |
   popd
 
 restore: |
-  . "${CRAFT_TEST_PATH}/common.sh"
-  restore_test_environment
+  if [[ -z "${CI:-}" ]]; then
+    . "${CRAFT_TEST_PATH}/common.sh"
+    restore_test_environment
+  fi
