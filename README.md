@@ -17,7 +17,7 @@ searching using kibana (Kibana is not supported with zinc. Zinc provides its own
 Assuming you have access to a bootstrapped Juju controller on Kubernetes, you can simply:
 
 ```bash
-$ juju deploy zinc-k8s # --trust (use when cluster has RBAC enabled)
+$ juju deploy zinc-k8s
 ```
 
 You can monitor the deployment of Zinc using `juju status`. Once the application displays status
