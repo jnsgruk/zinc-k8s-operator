@@ -60,6 +60,18 @@ provides:
   grafana-dashboard:
     interface: grafana_dashboard
 
+charm-libs:
+  - lib: grafana_k8s.grafana_dashboard
+    version: "0"
+  - lib: loki_k8s.loki_push_api
+    version: "0"
+  - lib: observability_libs.juju_topology
+    version: "0"
+  - lib: parca.parca_scrape
+    version: "0"
+  - lib: traefik_k8s.ingress
+    version: "2"
+
 requires:
   log-proxy:
     interface: loki_push_api
