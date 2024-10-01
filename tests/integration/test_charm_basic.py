@@ -6,7 +6,6 @@
 import base64
 import gzip
 import json
-import re
 from urllib.request import Request, urlopen
 
 from . import ZINC, retry
@@ -14,8 +13,14 @@ from .juju import Juju
 
 
 def _get_password() -> str:
-    result = Juju.run(f"{ZINC}/0", "get-admin-password")
-    return str(result["admin-password"])
+    result = Juju.cli("list-secrets", "--format", "json")
+    secrets = json.loads(result.stdout)
+    secret_name = next(k for k, v in secrets.items() if v["owner"] == ZINC)
+
+    result = Juju.cli("show-secret", secret_name, "--format", "json", "--reveal")
+    secret = json.loads(result.stdout)
+
+    return secret[secret_name]["content"]["Data"]["password"]
 
 
 def test_deploy(zinc_charm, zinc_oci_image):
@@ -31,12 +36,7 @@ def test_application_is_up():
     assert response.status == 200
 
 
-def test_get_admin_password_action():
-    password = _get_password()
-    assert re.match("[A-Za-z0-9-_]{24}", password)
-
-
-@retry(retry_num=5, retry_sleep_sec=3)
+@retry(retry_num=10, retry_sleep_sec=3)
 def test_can_auth_with_zinc():
     # Now try to actually hit the service
     address = Juju.status()["applications"][ZINC]["address"]

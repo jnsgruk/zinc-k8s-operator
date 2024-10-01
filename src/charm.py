@@ -25,7 +25,6 @@ class ZincCharm(ops.CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
-        self.framework.observe(self.on.get_admin_password_action, self._on_get_admin_password)
         self.framework.observe(self.on.update_status, self._on_update_status)
 
         self._container = self.unit.get_container("zinc")
@@ -75,10 +74,6 @@ class ZincCharm(ops.CharmBase):
         """Update the status of the application."""
         if self._container.can_connect() and self._container.get_services("zinc"):
             self.unit.set_workload_version(self._zinc.version)
-
-    def _on_get_admin_password(self, event: ops.ActionEvent) -> None:
-        """Return the initial generated password for the admin user as an action response."""
-        event.set_results({"admin-password": self._generated_password()})
 
     def _generated_password(self) -> str:
         """Report the generated admin password; generate one if it doesn't exist."""

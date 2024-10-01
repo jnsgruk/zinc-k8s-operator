@@ -25,17 +25,18 @@ You can monitor the deployment of Zinc using `juju status`. Once the application
 the auto-generated password to login (example output):
 
 ```bash
-$ juju run-action zinc-k8s/0 get-admin-password --wait
-unit-zinc-k8s-0:
-  UnitId: zinc-k8s/0
-  id: "6"
-  results:
-    admin-password: ZzRkyyFRVFNy3Qv5JQ6tYEkq
-  status: completed
-  timing:
-    completed: 2021-12-06 15:15:14 +0000 UTC
-    enqueued: 2021-12-06 15:15:12 +0000 UTC
-    started: 2021-12-06 15:15:13 +0000 UTC
+$ juju list-secrets
+ID                    Name  Owner     Rotation  Revision  Last updated
+crtsfg7mp25c77uc56r0  -     zinc-k8s  never            1  28 minutes ago
+
+$ juju show-secret --reveal crtsfg7mp25c77uc56r0
+```
+
+Or in a less manual fashion...
+
+```bash
+$ secret_name="$(juju list-secrets --format json | jq -r 'map_values(select(.owner=="zinc-k8s")) | keys[0]')"
+$ juju show-secret --format json --reveal "$secret_name"  | jq -r 'map(.content.Data.password) | .[0]'
 ```
 
 You can see the application address in `juju status`, or get it like so:

@@ -57,13 +57,6 @@ class TestCharm(unittest.TestCase):
             self.harness.charm.on.update_status.emit()
             self.assertEqual(self.harness.get_workload_version(), "0.4.0")
 
-    def test_get_admin_password_action(self):
-        _prime_password_secret(self.harness)
-        out = self.harness.run_action("get-admin-password")
-        self.assertDictEqual(
-            out.results, {"admin-password": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"}
-        )
-
     def test_zinc_password_no_relation(self):
         self.harness.set_leader(True)
         new_secret = self.harness.charm._generated_password()
