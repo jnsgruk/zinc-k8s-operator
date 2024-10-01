@@ -18,6 +18,7 @@ environment:
   LANG: "C.UTF-8"
   LANGUAGE: "en"
 
+  CI: "$(HOST: echo $CI)"
   PROJECT_PATH: /root/proj
   CRAFT_TEST_PATH: /root/proj/tests/spread/lib
 
@@ -105,9 +106,11 @@ prepare: |
   fi
 
 restore: |
-  apt autoremove -y --purge
-  rm -Rf "$PROJECT_PATH"
-  mkdir -p "$PROJECT_PATH"
+  if [[ -z "${CI:-}" ]]; then
+    apt autoremove -y --purge
+    rm -Rf "$PROJECT_PATH"
+    mkdir -p "$PROJECT_PATH"
+  fi
 
 kill-timeout: 15m
 

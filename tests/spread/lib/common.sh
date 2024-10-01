@@ -1,19 +1,6 @@
 export PATH=/snap/bin:$PROJECT_PATH/tests/spread/lib/tools:$PATH
 export CONTROLLER_NAME="craft-test-$PROVIDER"
 
-install_lxd() {
-    snap install lxd --channel "$LXD_CHANNEL"
-    snap refresh lxd --channel "$LXD_CHANNEL"
-    lxd waitready
-    lxd init --minimal
-    chmod a+wr /var/snap/lxd/common/lxd/unix.socket
-    lxc network set lxdbr0 ipv6.address none
-    usermod -a -G lxd "$USER"
-
-    iptables -F FORWARD
-    iptables -P FORWARD ACCEPT
-}
-
 install_microk8s() {
     snap install microk8s --channel "$MICROK8S_CHANNEL"
     snap refresh microk8s --channel "$MICROK8S_CHANNEL"
@@ -47,14 +34,12 @@ install_tools() {
     apt-get install -y make
     snap install astral-uv --classic
     snap install charmcraft --classic --channel "$CHARMCRAFT_CHANNEL"
-    snap install jq
     snap install kubectl --classic
     mkdir -p "$HOME"/.kube
     microk8s config > ${HOME}/.kube/config
 }
 
 setup_test_environment() {
-  install_lxd
   install_juju
   install_microk8s
   install_tools
@@ -68,7 +53,6 @@ restore_test_environment() {
 
   snap remove --purge astral-uv
   snap remove --purge charmcraft
-  snap remove --purge jq
   snap remove --purge juju
   snap remove --purge kubectl
   snap remove --purge microk8s
