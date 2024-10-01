@@ -31,7 +31,6 @@ care of automatically if you use the `Makefile` provided:
 make fmt           # update your code according to linting rules
 make lint          # code style
 make unit          # unit tests
-make integration   # integration tests
 ```
 
 To create the environment manually:
@@ -40,6 +39,49 @@ To create the environment manually:
 uv venv
 source .venv/bin/activate
 uv sync --all-extras
+```
+
+## Running integration tests
+
+Integration testing is taken care of using `spread`. Currently, there are two supported backends -
+tests can either be run in LXD virtual machines, or on a pre-provisioned server (such as a Github
+Actions runner or development VM).
+
+To show the available integration tests, you can:
+
+```bash
+$ charmcraft test --list lxd:
+lxd:ubuntu-24.04:tests/spread/deploy:juju_3_5
+lxd:ubuntu-24.04:tests/spread/deploy:juju_3_6
+lxd:ubuntu-24.04:tests/spread/ingress-path:juju_3_5
+lxd:ubuntu-24.04:tests/spread/ingress-path:juju_3_6
+lxd:ubuntu-24.04:tests/spread/ingress:juju_3_5
+lxd:ubuntu-24.04:tests/spread/ingress:juju_3_6
+lxd:ubuntu-24.04:tests/spread/observability-relations:juju_3_6
+lxd:ubuntu-24.04:tests/spread/observability-relations:juju_3_5
+```
+
+From there, you can either run all of the tests, or a selection:
+
+```bash
+# Run all of the tests
+$ charmcraft test -v lxd:
+
+# Run a particular test
+$ charmcraft test -v lxd:ubuntu-24.04:tests/spread/deploy:juju_3_5
+```
+
+To run any of the tests on a locally provisioned machine, use the `github-ci` backend, e.g.
+
+```bash
+# List available tests
+$ charmcraft test --list github-ci:
+
+# Run all of the tests
+$ charmcraft test -v github-ci:
+
+# Run a particular test
+$ charmcraft test -v github-ci:ubuntu-24.04:tests/spread/deploy:juju_3_5
 ```
 
 ## Build charm
