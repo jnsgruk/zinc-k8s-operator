@@ -1,20 +1,11 @@
-summary: Run basic deployment tests
-kill-timeout: 90m
+summary: Run basic deployment tests using just shell
 systems:
   - ubuntu-24.04
 
-prepare: |
-  . "${CRAFT_TEST_PATH}/common.sh"
-  setup_test_environment
-
 execute: |
-  pushd "$PROJECT_PATH"
-
   # Build the charm if it doesn't already exist
   if [[ ! -f "$PWD/zinc-k8s_amd64.charm" ]]; then
     charmcraft pack --verbose
-  else
-    chown $(id -u):$(id -g) $PWD/zinc-k8s_amd64.charm
   fi
 
   # Grab the url for the correct OCI image
@@ -53,10 +44,3 @@ execute: |
 
   echo $response | MATCH "bulk data inserted"
   popd
-  popd
-
-restore: |
-  if [[ -z "${CI:-}" ]]; then
-    . "${CRAFT_TEST_PATH}/common.sh"
-    restore_test_environment
-  fi

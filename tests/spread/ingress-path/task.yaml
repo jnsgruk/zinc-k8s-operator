@@ -3,24 +3,11 @@ kill-timeout: 90m
 systems:
   - ubuntu-24.04
 
-prepare: |
-  . "${CRAFT_TEST_PATH}/common.sh"
-  setup_test_environment
-
 execute: |
-  pushd "$PROJECT_PATH"
   args="tests/integration/test_path_ingress_traefik.py"
 
   if [[ -f "$PWD/zinc-k8s_amd64.charm" ]]; then
-    chown $(id -u):$(id -g) $PWD/zinc-k8s_amd64.charm
     args="--charm-path=$PWD/zinc-k8s_amd64.charm $args"
   fi
 
   make integration ARGS="$args"
-  popd
-
-restore: |
-  if [[ -z "${CI:-}" ]]; then
-    . "${CRAFT_TEST_PATH}/common.sh"
-    restore_test_environment
-  fi

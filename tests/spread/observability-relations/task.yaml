@@ -1,14 +1,8 @@
 summary: Test observability relations with zinc
-kill-timeout: 90m
 systems:
   - ubuntu-24.04
 
-prepare: |
-  . "${CRAFT_TEST_PATH}/common.sh"
-  setup_test_environment
-
 execute: |
-  pushd "$PROJECT_PATH"
   args="tests/integration/test_observability_relations.py"
 
   if [[ -f "$PWD/zinc-k8s_amd64.charm" ]]; then
@@ -17,10 +11,3 @@ execute: |
   fi
 
   make integration ARGS="$args"
-  popd
-
-restore: |
-  if [[ -z "${CI:-}" ]]; then
-    . "${CRAFT_TEST_PATH}/common.sh"
-    restore_test_environment
-  fi

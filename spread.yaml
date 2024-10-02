@@ -1,4 +1,6 @@
 project: zinc-charm-tests
+kill-timeout: 90m
+workers: 1
 
 environment:
   JUJU_CHANNEL/juju_3_5: 3.5/stable
@@ -105,13 +107,21 @@ prepare: |
     systemctl mask unattended-upgrades.service
   fi
 
+  . "${CRAFT_TEST_PATH}/common.sh"
+  setup_test_environment
+
+  pushd "$PROJECT_PATH"
+
+  if [[ -f "$PWD/zinc-k8s_amd64.charm" ]]; then
+    chown $(id -u):$(id -g) $PWD/zinc-k8s_amd64.charm
+  fi
+
 restore: |
   if [[ -z "${CI:-}" ]]; then
+    . "${CRAFT_TEST_PATH}/common.sh"
+    restore_test_environment
+    
     apt autoremove -y --purge
     rm -Rf "$PROJECT_PATH"
     mkdir -p "$PROJECT_PATH"
   fi
-
-kill-timeout: 15m
-
-workers: 1
