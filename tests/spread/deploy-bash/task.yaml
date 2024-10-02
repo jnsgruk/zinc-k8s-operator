@@ -2,12 +2,12 @@ summary: Run basic deployment tests using just shell
 systems:
   - ubuntu-24.04
 
-execute: |
+prepare: |
   # Build the charm if it doesn't already exist
   if [[ ! -f "$PWD/zinc-k8s_amd64.charm" ]]; then
     charmcraft pack --verbose
   fi
-
+execute: |
   # Grab the url for the correct OCI image
   oci_image="$(cat charmcraft.yaml | yq '.resources.zinc-image.upstream-source')"
 
