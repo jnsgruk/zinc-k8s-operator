@@ -56,8 +56,17 @@ jobs:
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
 
+      - name: Cache wheels
+        id: cache-wheels
+        uses: actions/cache@v4
+        with:
+          path: ./charmcraft-cache
+          key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
+
       - name: Pack charm
         run: charmcraft pack -v
+        env:
+          CRAFT_SHARED_CACHE: ./charmcraft-cache/
 
       - name: Upload charm artifact
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4
