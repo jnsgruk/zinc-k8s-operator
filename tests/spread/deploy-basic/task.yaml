@@ -1,0 +1,62 @@
+summary: Run basic deployment tests
+kill-timeout: 90m
+systems:
+  - ubuntu-24.04
+
+prepare: |
+  . "${CRAFT_TEST_PATH}/common.sh"
+  setup_test_environment
+
+execute: |
+  pushd "$PROJECT_PATH"
+
+  # Build the charm if it doesn't already exist
+  if [[ ! -f "$PWD/zinc-k8s_amd64.charm" ]]; then
+    charmcraft pack --verbose
+  else
+    chown $(id -u):$(id -g) $PWD/zinc-k8s_amd64.charm
+  fi
+
+  # Grab the url for the correct OCI image
+  oci_image="$(cat charmcraft.yaml | yq '.resources.zinc-image.upstream-source')"
+
+  # Deploy the application
+  juju deploy \
+    "$PWD/zinc-k8s_amd64.charm" \
+    zinc-k8s \
+    --resource zinc-image="$oci_image"
+
+  # Wait for deploy to settle
+  juju wait-for application zinc-k8s
+
+  # Get IP for zinc-k8s
+  address="$(juju status --format json | jq -r '.applications."zinc-k8s".address')"
+
+  # Check Zinc is up and can be reached over HTTP
+  curl -s \
+    --connect-timeout 120 \
+    --retry-connrefused \
+    --retry 10 \
+    --retry-delay 3 \
+    --retry-max-time 120 \
+    "http://${address}:4080/version"
+
+  # Get admin password for zinc
+  secret_name="$(juju list-secrets --format json | jq -r 'map_values(select(.owner=="zinc-k8s")) | keys[0]')"
+  password="$(juju show-secret --format json --reveal "$secret_name"  | jq -r 'map(.content.Data.password) | .[0]')"
+
+  # Check we can bulk insert data to zinc
+  pushd ./tests/integration/
+
+  gzip -d olympics.ndjson.gz
+  response="$(curl -s -i -u "admin:${password}" --data-binary "@olympics.ndjson" "http://${address}:4080/api/_bulk")"
+
+  echo $response | MATCH "bulk data inserted"
+  popd
+  popd
+
+restore: |
+  if [[ -z "${CI:-}" ]]; then
+    . "${CRAFT_TEST_PATH}/common.sh"
+    restore_test_environment
+  fi

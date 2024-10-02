@@ -34,7 +34,9 @@ install_tools() {
     apt-get install -y make
     snap install astral-uv --classic
     snap install charmcraft --classic --channel "$CHARMCRAFT_CHANNEL"
+    snap install jq
     snap install kubectl --classic
+    snap install yq
     mkdir -p "$HOME"/.kube
     microk8s config > ${HOME}/.kube/config
 }
@@ -53,7 +55,9 @@ restore_test_environment() {
 
   snap remove --purge astral-uv
   snap remove --purge charmcraft
+  snap remove --purge jq
   snap remove --purge juju
   snap remove --purge kubectl
   snap remove --purge microk8s
+  snap remove --purge yq
 }
