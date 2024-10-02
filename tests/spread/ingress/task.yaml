@@ -3,6 +3,8 @@ systems:
   - ubuntu-24.04
 
 execute: |
+  pushd "$PROJECT_PATH"
+
   args="tests/integration/test_ingress_traefik.py"
 
   if [[ -f "$PWD/zinc-k8s_amd64.charm" ]]; then

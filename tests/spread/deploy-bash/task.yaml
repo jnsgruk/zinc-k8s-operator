@@ -3,11 +3,16 @@ systems:
   - ubuntu-24.04
 
 prepare: |
+  pushd "$PROJECT_PATH"
+
   # Build the charm if it doesn't already exist
   if [[ ! -f "$PWD/zinc-k8s_amd64.charm" ]]; then
     charmcraft pack --verbose
   fi
+
 execute: |
+  pushd "$PROJECT_PATH"
+
   # Grab the url for the correct OCI image
   oci_image="$(cat charmcraft.yaml | yq '.resources.zinc-image.upstream-source')"
 
