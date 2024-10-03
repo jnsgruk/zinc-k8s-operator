@@ -22,10 +22,10 @@ description: |
 run_user: _daemon_
 
 environment:
-  ZINC_DATA_PATH: /var/lib/zincsearch
-  ZINC_PROMETHEUS_ENABLE: true
-  ZINC_TELEMETRY: false
-  ZINC_PROFILER: true
+  ZINC_DATA_PATH: "/var/lib/zincsearch"
+  ZINC_PROMETHEUS_ENABLE: "true"
+  ZINC_TELEMETRY: "false"
+  ZINC_PROFILER: "true"
 
 services:
   zinc:
