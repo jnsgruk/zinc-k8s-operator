@@ -51,7 +51,7 @@ jobs:
           # Strip the leading 'v' from the upstream release version
           export latest="${upstream/v/}"
           # Update the version in the rockcraft.yaml
-          yq -i '.version = env(latest)' rockcraft.yaml
+          sed -i 's/^\(version: \).*$/\1'"$latest"'/' rockcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
