@@ -53,7 +53,7 @@ parts:
     source-type: git
     source-tag: v$CRAFT_PROJECT_VERSION
     build-snaps:
-      - go/1.20/stable
+      - go/1.23/stable
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
@@ -94,7 +94,7 @@ parts:
     source-tag: v0.15.1
     source-subdir: images/build/go-runner
     build-snaps:
-      - go/1.20/stable
+      - go/1.23/stable
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
