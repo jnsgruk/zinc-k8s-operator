@@ -91,7 +91,7 @@ parts:
     plugin: go
     source: https://github.com/kubernetes/release
     source-type: git
-    source-tag: v0.15.1
+    source-tag: v0.17.8
     source-subdir: images/build/go-runner
     build-snaps:
       - go/1.23/stable
