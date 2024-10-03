@@ -50,6 +50,7 @@ clean:
 	rm -rf .ruff_cache
 	rm -rf .venv
 	rm -rf *.charm
+	rm -rf *.rock
 	rm -rf **/__pycache__
 	rm -rf **/*.egg-info
 	rm -rf requirements*.txt
