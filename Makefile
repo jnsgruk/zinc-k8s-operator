@@ -43,3 +43,13 @@ integration:
 		--ignore=$(TESTS)/unit \
 		--log-cli-level=INFO \
 		$(ARGS)
+
+clean:
+	rm -rf .coverage
+	rm -rf .pytest_cache
+	rm -rf .ruff_cache
+	rm -rf .venv
+	rm -rf *.charm
+	rm -rf **/__pycache__
+	rm -rf **/*.egg-info
+	rm -rf requirements*.txt
