@@ -2,9 +2,11 @@ name: zinc
 version: 0.4.10
 license: Apache-2.0
 base: bare
-build_base: ubuntu@22.04
+build_base: ubuntu@24.04
+
 platforms:
   amd64:
+
 summary: Zinc is a lightweight search engine and alternative to Elasticsearch.
 description: |
   Zinc is a search engine that does full text indexing. It is a lightweight alternative to
@@ -16,17 +18,21 @@ description: |
 
   It is a drop-in replacement for elasticsearch if you are just ingesting data using APIs and
   searching using kibana (Kibana is not supported with zinc. Zinc provides its own UI).
+
 run_user: _daemon_
+
 environment:
   ZINC_DATA_PATH: /var/lib/zincsearch
   ZINC_PROMETHEUS_ENABLE: true
   ZINC_TELEMETRY: false
   ZINC_PROFILER: true
+
 services:
   zinc:
     override: replace
     startup: enabled
     command: /bin/go-runner --log-file=/var/lib/zincsearch/zinc.log --also-stdout=true --redirect-stderr=true /bin/zincsearch
+
 parts:
   nodejs:
     plugin: dump
@@ -39,6 +45,7 @@ parts:
       asdf plugin add nodejs
       asdf install nodejs "$NODE_VERSION"
       asdf global nodejs "$NODE_VERSION"
+
   zinc:
     after: [nodejs]
     plugin: go
@@ -78,6 +85,7 @@ parts:
       mkdir -p "${CRAFT_PART_INSTALL}/bin"
       install -m 0755 "${CRAFT_PART_BUILD}/zincsearch" "${CRAFT_PART_INSTALL}/bin/zincsearch"
       craftctl default
+
   # This part can be removed once Pebble supports log forwarding
   kube-log-runner:
     plugin: go
