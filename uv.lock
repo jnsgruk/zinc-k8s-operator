@@ -58,7 +58,7 @@ wheels = [
 
 [[package]]
 name = "cosl"
-version = "0.0.39"
+version = "0.0.40"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lightkube" },
@@ -68,9 +68,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/aa/b4d655b47c921e1b7ffc18c84b895ed141623c3611cdec1e3ec76238a237/cosl-0.0.39.tar.gz", hash = "sha256:1b7e8575d53167643f924a31f29a99b241a0e31c463c39568fbbe778fe00fe55", size = 64727 }
+sdist = { url = "https://files.pythonhosted.org/packages/10/72/526cc362ee9bdd48f438981a68f82ad0b5a7d666a6e191a821718ed2b020/cosl-0.0.40.tar.gz", hash = "sha256:ea15d10a80e439e62d4e3ee0a57ef95bf71734c87d368692096000aec5852d97", size = 64502 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a9/e3/1f641c38aad73cf0ed24d1d4e1d65fc95248a9a7b20fe3bc1c56d11ceb44/cosl-0.0.39-py3-none-any.whl", hash = "sha256:c4e733a203e3d8a53a9b2d35e298d393f36bc2bce0ad306ac6707b3e12f2365a", size = 49397 },
+    { url = "https://files.pythonhosted.org/packages/23/f5/40165268dce32224857a592d9c70d2b3bf6f91aecf47324ce260a71d7a52/cosl-0.0.40-py3-none-any.whl", hash = "sha256:7d7d55a249b31f1d67830105ec0bf09798746b6817492bfb1a13df802d58dded", size = 49298 },
 ]
 
 [[package]]
