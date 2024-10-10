@@ -3,19 +3,8 @@ kill-timeout: 90m
 workers: 1
 
 environment:
-  JUJU_CHANNEL/juju_3_5: 3.5/stable
-  JUJU_CHANNEL/juju_3_6: 3.6/beta
-  CHARMCRAFT_CHANNEL: latest/stable
-  LXD_CHANNEL: latest/stable
-  MICROK8S_CHANNEL: 1.31-strict/stable
-  PROVIDER: microk8s
-
-  MICROK8S_ADDONS: hostpath-storage dns
-  METALLB_RANGE: 10.64.140.43-10.64.140.49
-
-  JUJU_BOOTSTRAP_OPTIONS: --model-default test-mode=true --model-default automatically-retry-hooks=false
-  JUJU_EXTRA_BOOTSTRAP_OPTIONS: ""
-  JUJU_BOOTSTRAP_CONSTRAINTS: ""
+  CONCIERGE_JUJU_CHANNEL/juju_3_5: 3.5/stable
+  CONCIERGE_JUJU_CHANNEL/juju_3_6: 3.6/beta
 
   LANG: "C.UTF-8"
   LANGUAGE: "en"
@@ -37,7 +26,7 @@ backends:
       lxc launch --vm \
         "ubuntu:${BASE}" \
         "${VM_NAME}" \
-        -c user.user-data="$(cat tests/spread/lib/cloud-config.yaml)" \
+        -c user.user-data="$(cat tests/spread/cloud-config.yaml)" \
         -c limits.cpu="${CPU}" \
         -c limits.memory="${MEM}GiB" \
         -d root,size="${DISK}GiB"
@@ -107,8 +96,9 @@ prepare: |
     systemctl mask unattended-upgrades.service
   fi
 
-  . "${CRAFT_TEST_PATH}/common.sh"
-  setup_test_environment
+  snap install go --classic
+  go install github.com/jnsgruk/concierge@latest
+  ~/go/bin/concierge prepare -v -p k8s --extra-snaps astral-uv --extra-debs make
 
   pushd "$PROJECT_PATH"
 
@@ -118,8 +108,7 @@ prepare: |
 
 restore: |
   if [[ -z "${CI:-}" ]]; then
-    . "${CRAFT_TEST_PATH}/common.sh"
-    restore_test_environment
+    ~/go/bin/concierge restore -v
     
     apt autoremove -y --purge
     rm -Rf "$PROJECT_PATH"
