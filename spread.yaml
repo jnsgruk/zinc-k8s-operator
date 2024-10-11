@@ -98,7 +98,7 @@ prepare: |
 
   snap install go --classic
   go install github.com/jnsgruk/concierge@latest
-  ~/go/bin/concierge prepare -v -p k8s --extra-snaps astral-uv --extra-debs make
+  ~/go/bin/concierge prepare --trace -p k8s --extra-snaps astral-uv --extra-debs make
 
   pushd "$PROJECT_PATH"
 
@@ -108,7 +108,7 @@ prepare: |
 
 restore: |
   if [[ -z "${CI:-}" ]]; then
-    ~/go/bin/concierge restore -v
+    ~/go/bin/concierge restore --trace
     
     apt autoremove -y --purge
     rm -Rf "$PROJECT_PATH"
