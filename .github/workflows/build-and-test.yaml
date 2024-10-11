@@ -94,6 +94,7 @@ jobs:
       - pack-charm
       - unit-test
     strategy:
+      fail-fast: false
       matrix:
         suite: ${{ fromJSON(needs.define-matrix.outputs.suites) }}
     # Allow Juju 3.6 jobs to fail, given that it's in beta
