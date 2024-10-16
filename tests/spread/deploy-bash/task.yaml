@@ -39,13 +39,19 @@ execute: |
 
   # Get admin password for zinc
   secret_name="$(juju list-secrets --format json | jq -r 'map_values(select(.owner=="zinc-k8s")) | keys[0]')"
-  password="$(juju show-secret --format json --reveal "$secret_name"  | jq -r 'map(.content.Data.password) | .[0]')"
+  password="$(juju show-secret --format json --reveal "$secret_name" | jq -r 'map(.content.Data.password) | .[0]')"
 
   # Check we can bulk insert data to zinc
-  pushd ./tests/integration/
+  pushd "${PROJECT_PATH}/tests/integration/"
 
-  gzip -d olympics.ndjson.gz
+  zcat olympics.ndjson.gz > olympics.ndjson
   response="$(curl -s -i -u "admin:${password}" --data-binary "@olympics.ndjson" "http://${address}:4080/api/_bulk")"
 
   echo $response | MATCH "bulk data inserted"
   popd
+
+restore: |
+  if [[ -z "${CI:-}" ]]; then
+    juju destroy-model --no-prompt --destroy-storage testing
+    juju add-model testing
+  fi

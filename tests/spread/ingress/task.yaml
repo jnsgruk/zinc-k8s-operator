@@ -12,3 +12,9 @@ execute: |
   fi
 
   make integration ARGS="$args"
+
+restore: |
+  if [[ -z "${CI:-}" ]]; then
+    juju destroy-model --no-prompt --destroy-storage testing
+    juju add-model testing
+  fi
