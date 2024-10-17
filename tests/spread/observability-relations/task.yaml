@@ -3,7 +3,7 @@ systems:
   - ubuntu-24.04
 
 execute: |
-  pushd "$PROJECT_PATH"
+  pushd "$SPREAD_PATH"
 
   args="tests/integration/test_observability_relations.py"
 

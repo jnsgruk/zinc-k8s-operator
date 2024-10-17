@@ -3,15 +3,9 @@ kill-timeout: 90m
 workers: 1
 
 environment:
+  CI: "$(HOST: echo $CI)"
   CONCIERGE_JUJU_CHANNEL/juju_3_5: 3.5/stable
   CONCIERGE_JUJU_CHANNEL/juju_3_6: 3.6/beta
-
-  LANG: "C.UTF-8"
-  LANGUAGE: "en"
-
-  CI: "$(HOST: echo $CI)"
-  PROJECT_PATH: /root/proj
-  CRAFT_TEST_PATH: /root/proj/tests/spread/lib
 
 backends:
   lxd:
@@ -100,7 +94,7 @@ prepare: |
   go install github.com/jnsgruk/concierge@latest
   ~/go/bin/concierge prepare --trace -p k8s --extra-snaps astral-uv --extra-debs make
 
-  pushd "$PROJECT_PATH"
+  pushd "$SPREAD_PATH"
 
   if [[ -f "$PWD/zinc-k8s_amd64.charm" ]]; then
     chown $(id -u):$(id -g) $PWD/zinc-k8s_amd64.charm
@@ -111,6 +105,6 @@ restore: |
     ~/go/bin/concierge restore --trace
     
     apt autoremove -y --purge
-    rm -Rf "$PROJECT_PATH"
-    mkdir -p "$PROJECT_PATH"
+    rm -Rf "$SPREAD_PATH"
+    mkdir -p "$SPREAD_PATH"
   fi

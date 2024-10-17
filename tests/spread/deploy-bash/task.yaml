@@ -3,7 +3,7 @@ systems:
   - ubuntu-24.04
 
 prepare: |
-  pushd "$PROJECT_PATH"
+  pushd "$SPREAD_PATH"
 
   # Build the charm if it doesn't already exist
   if [[ ! -f "$PWD/zinc-k8s_amd64.charm" ]]; then
@@ -11,7 +11,7 @@ prepare: |
   fi
 
 execute: |
-  pushd "$PROJECT_PATH"
+  pushd "$SPREAD_PATH"
 
   # Grab the url for the correct OCI image
   oci_image="$(cat charmcraft.yaml | yq '.resources.zinc-image.upstream-source')"
@@ -42,7 +42,7 @@ execute: |
   password="$(juju show-secret --format json --reveal "$secret_name" | jq -r 'map(.content.Data.password) | .[0]')"
 
   # Check we can bulk insert data to zinc
-  pushd "${PROJECT_PATH}/tests/integration/"
+  pushd "${SPREAD_PATH}/tests/integration/"
 
   zcat olympics.ndjson.gz > olympics.ndjson
   response="$(curl -s -i -u "admin:${password}" --data-binary "@olympics.ndjson" "http://${address}:4080/api/_bulk")"
