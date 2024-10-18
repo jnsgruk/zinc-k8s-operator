@@ -54,7 +54,7 @@ jobs:
         uses: canonical/setup-lxd@main
 
       - name: Install charmcraft
-        run: sudo snap install charmcraft --classic
+        run: sudo snap install charmcraft --classic --channel latest/edge
 
       - name: Cache wheels
         id: cache-wheels
