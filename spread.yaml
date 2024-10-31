@@ -91,7 +91,7 @@ prepare: |
   fi
 
   snap install --classic concierge
-  concierge prepare --trace -p k8s --extra-snaps astral-uv --extra-debs make
+  concierge prepare --trace -p microk8s --extra-snaps astral-uv --extra-debs make
 
   pushd "$SPREAD_PATH"
 
