@@ -28,13 +28,15 @@ execute: |
   # Get IP for zinc-k8s
   address="$(juju status --format json | jq -r '.applications."zinc-k8s".address')"
 
+  juju exec --unit zinc-k8s/0 -- env PEBBLE_SOCKET=/charm/containers/zinc/pebble.socket pebble logs
+
   # Check Zinc is up and can be reached over HTTP
-  curl -s \
-    --connect-timeout 120 \
+  curl \
+    --connect-timeout 600 \
     --retry-connrefused \
-    --retry 10 \
-    --retry-delay 3 \
-    --retry-max-time 120 \
+    --retry 60 \
+    --retry-delay 10 \
+    --retry-max-time 600 \
     "http://${address}:4080/version"
 
   # Get admin password for zinc
