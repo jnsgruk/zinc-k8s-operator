@@ -62,6 +62,11 @@ jobs:
         with:
           path: /home/runner/snap/charmcraft/common/cache/charmcraft
           key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
+          # If the above cache key doesn't match, it's because the uv.lock has changed.
+          # Even so, pre-existing caches may still contain useful cached builds for some
+          # portion of the dependencies, and restore-keys can partially match a cache.
+          restore-keys: |
+            ${{ runner.os }}-wheel-cache-
 
       - name: Pack charm
         run: charmcraft pack -v
