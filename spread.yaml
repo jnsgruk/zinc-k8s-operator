@@ -5,7 +5,7 @@ workers: 1
 environment:
   CI: "$(HOST: echo $CI)"
   CONCIERGE_JUJU_CHANNEL/juju_3_5: 3.5/stable
-  CONCIERGE_JUJU_CHANNEL/juju_3_6: 3.6/beta
+  CONCIERGE_JUJU_CHANNEL/juju_3_6: 3.6/stable
 
 backends:
   lxd:
