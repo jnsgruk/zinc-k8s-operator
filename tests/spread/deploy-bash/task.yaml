@@ -29,11 +29,11 @@ execute: |
   address="$(juju status --format json | jq -r '.applications."zinc-k8s".address')"
 
   # Check Zinc is up and can be reached over HTTP
-  curl -s \
+  curl \
     --connect-timeout 120 \
     --retry-connrefused \
-    --retry 10 \
-    --retry-delay 3 \
+    --retry 20 \
+    --retry-delay 5 \
     --retry-max-time 120 \
     "http://${address}:4080/version"
 
