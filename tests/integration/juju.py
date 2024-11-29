@@ -4,6 +4,7 @@
 
 
 import json
+import os
 import subprocess
 import time
 from typing import Dict, List
@@ -18,7 +19,9 @@ class Juju:
     def status(cls):
         args = ["status", "--format", "json"]
         result = cls.cli(*args)
-        return json.loads(result.stdout)
+        if result:
+            return json.loads(result.stdout)
+        return {}
 
     @classmethod
     def deploy(
@@ -61,8 +64,10 @@ class Juju:
     def run(cls, unit: str, action: str):
         args = ["run", "--format", "json", unit, action]
         act = cls.cli(*args)
-        result = json.loads(act.stdout)
-        return result[unit]["results"]
+        if act:
+            result = json.loads(act.stdout)
+            return result[unit]["results"]
+        return {}
 
     @classmethod
     def wait_for_idle(cls, applications: List[str], timeout: int):
@@ -81,15 +86,24 @@ class Juju:
 
     @classmethod
     def cli(cls, *args):
-        proc = subprocess.run(
-            ["/snap/bin/juju", *args],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            env={"NO_COLOR": "true"},
-        )
-        return proc
+        proc = None
+        try:
+            proc = subprocess.run(
+                ["/snap/bin/juju", *args],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                env=os.environ.copy().update({"NO_COLOR": "true"}),
+            )
+            return proc
+        except subprocess.CalledProcessError as e:
+            # This is obviously a bit messy, but this is only called during test code and it
+            # makes debugging a lot simpler.
+            print(e.stdout)
+            print(e.stderr)
+        finally:
+            return proc
 
     @classmethod
     def _unit_statuses(cls, application: str):
