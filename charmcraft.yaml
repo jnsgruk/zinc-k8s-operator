@@ -26,9 +26,10 @@ parts:
     build-snaps:
       - rustup
       - astral-uv
+      - just
     override-build: |
       rustup toolchain install stable
-      make generate-requirements
+      just generate-requirements
       craftctl default
     prime:
       - -*.charm
