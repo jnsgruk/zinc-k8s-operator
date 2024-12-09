@@ -25,12 +25,20 @@ This project uses [`uv`](https://github.com/astral-sh/uv) for managing dependenc
 environments.
 
 You can create a virtual environment manually should you wish, though most of that is taken
-care of automatically if you use the `Makefile` provided:
+care of automatically if you use the `justfile` provided. Simply run
+[`just`](https://github.com/casey/just) (you can `snap install just`) to show the available
+commands:
 
 ```shell
-make fmt           # update your code according to linting rules
-make lint          # code style
-make unit          # unit tests
+∮ just                                                                                           12:17:49
+Available recipes:
+    clean                 # Cleanup transient files
+    fmt                   # Format the code
+    generate-requirements # Generate requirements.txt from pyproject.toml
+    integration *args=''  # Run integration tests
+    lint                  # Lint the code
+    lock                  # Update uv.lock with the latest deps
+    unit *args=''         # Run unit tests
 ```
 
 To create the environment manually:
