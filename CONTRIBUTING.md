@@ -30,7 +30,7 @@ care of automatically if you use the `justfile` provided. Simply run
 commands:
 
 ```shell
-∮ just                                                                                           12:17:49
+∮ just
 Available recipes:
     clean                 # Cleanup transient files
     fmt                   # Format the code
