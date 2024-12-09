@@ -1,5 +1,6 @@
 set quiet # Recipes are silent by default
 set export # Just variables are exported to the environment
+set positional-arguments # Send positional arguments to Just recipes
 
 PROJECT := invocation_directory()
 
