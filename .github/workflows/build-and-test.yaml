@@ -14,9 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Install dependencies
-        run: sudo snap install --classic astral-uv
+        run: |
+          sudo snap install --classic astral-uv
+          sudo snap install --classic just
       - name: Run linters
-        run: make lint
+        run: just lint
 
   unit-test:
     name: Unit tests
@@ -25,9 +27,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Install dependencies
-        run: sudo snap install --classic astral-uv
+        run: |
+          sudo snap install --classic astral-uv
+          sudo snap install --classic just
       - name: Run tests
-        run: make unit
+        run: just unit
 
   lib-check:
     name: Check libraries
