@@ -12,7 +12,7 @@ execute: |
     args="--charm-path=$PWD/zinc-k8s_amd64.charm $args"
   fi
 
-  make integration ARGS="$args"
+  just integration "$args"
 
 restore: |
   if [[ -z "${CI:-}" ]]; then
