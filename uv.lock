@@ -54,7 +54,7 @@ wheels = [
 
 [[package]]
 name = "cosl"
-version = "0.0.48"
+version = "0.0.50"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lightkube" },
@@ -64,9 +64,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/72/fb/a1c76a24baffe83e0329c2b0aa19bf53f11e284c6aaee20bdca40a1a82c4/cosl-0.0.48.tar.gz", hash = "sha256:f02f540335db8c742cf87ef41891298033e6c2edbcf8cfa2ef2afa378fd3cf42", size = 72029 }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/b1/9787d9b4bf8edfede482c4fc88a9c878073fdd1760248a2486ef7e1b83f1/cosl-0.0.50.tar.gz", hash = "sha256:d81e2db6b8ccdb417e90b39eb53be7d53275103e05a66867a82c1345147d7896", size = 74993 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/5e/209d848f49b840e9718d100dd87b9070e017e525229ec82017e3d61140b0/cosl-0.0.48-py3-none-any.whl", hash = "sha256:36b57cdd7f9e143616eddd934a1d95478a5d4610c2ffe036780a9032d6e301ae", size = 58574 },
+    { url = "https://files.pythonhosted.org/packages/2e/6a/7fa0d6102cd315deeffd5c88ff307f5d30253a95e110259cb1c85a7d4ca9/cosl-0.0.50-py3-none-any.whl", hash = "sha256:b059b2af5db9c124ab7b7eba6cbbc61fc1c99c513c00f031587a963c73b9af38", size = 60113 },
 ]
 
 [[package]]
@@ -166,18 +166,17 @@ wheels = [
 
 [[package]]
 name = "httpx"
-version = "0.27.2"
+version = "0.28.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
     { name = "certifi" },
     { name = "httpcore" },
     { name = "idna" },
-    { name = "sniffio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/82/08f8c936781f67d9e6b9eeb8a0c8b4e406136ea4c3d1f89a5db71d42e0e6/httpx-0.27.2.tar.gz", hash = "sha256:f7c2be1d2f3c3c3160d441802406b206c2b76f5947b11115e6df10c6c65e66c2", size = 144189 }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/df/48c586a5fe32a0f01324ee087459e112ebb7224f646c0b5023f5e79e9956/httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc", size = 141406 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/95/9377bcb415797e44274b51d46e3249eba641711cf3348050f76ee7b15ffc/httpx-0.27.2-py3-none-any.whl", hash = "sha256:7bb2708e112d8fdd7829cd4243970f0c223274051cb35ee80c03301ee29a3df0", size = 76395 },
+    { url = "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad", size = 73517 },
 ]
 
 [[package]]
@@ -227,16 +226,16 @@ wheels = [
 
 [[package]]
 name = "lightkube"
-version = "0.16.0"
+version = "0.16.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "lightkube-models" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e4/cc/208601b030ff6a9d1d8f1539a44bb90203e6aa36e3893de8a319e73c5d4c/lightkube-0.16.0.tar.gz", hash = "sha256:1fafd0cdfe0559ce165600b7a25714c63b4835e1dcbeaea59a43363edfc75e9c", size = 44491 }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/49/75a5a1609eca00a6c85621b0f975164bede58a53ce311a74ab2cb2195442/lightkube-0.16.1.tar.gz", hash = "sha256:d71e5a83521e10d32e959255bb4d968610772f695d1beb37e972824f7272baf7", size = 44834 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/79/97f960e9a81aab05e5b0460239e018c1f19643e09601edf95c5721a24d6f/lightkube-0.16.0-py3-none-any.whl", hash = "sha256:8fc6f8cdefb83885d219f4d1edd3fac4fad53baff97bd6432f40a729fe9cada5", size = 38207 },
+    { url = "https://files.pythonhosted.org/packages/9f/26/ed450d6bf51cea800019f3da44da8c31c6d0bb1c53776a740df5253ea939/lightkube-0.16.1-py3-none-any.whl", hash = "sha256:5201d09cd854a4102491387235c0754a7ea47a007e15d95dee9294a7d4e88eb7", size = 38269 },
 ]
 
 [[package]]
