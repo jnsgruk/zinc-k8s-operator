@@ -22,7 +22,7 @@ relation is `profiling-endpoint`. It is strongly recommended to use the same rel
 consistency across charms and doing so obviates the need for an additional constructor argument.
 The `ProfilingEndpointProvider` object may be instantiated as follows
 
-    from charms.parca.v0.parca_scrape import ProfilingEndpointProvider
+    from charms.parca_k8s.v0.parca_scrape import ProfilingEndpointProvider
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -128,7 +128,7 @@ default value.
 For example a Parca charm may instantiate the `ProfilingEndpointConsumer` in its constructor as
 follows
 
-    from charms.parca.v0.parca_scrape import ProfilingEndpointConsumer
+    from charms.parca_k8s.v0.parca_scrape import ProfilingEndpointConsumer
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -177,14 +177,15 @@ import ops
 from charms.observability_libs.v0.juju_topology import JujuTopology
 
 # The unique Charmhub library identifier, never change it
-LIBID = "7b30b495435746acb645ca414898621f"
+LIBID = "dbc3d2e89cb24917b99c40e14354dd25"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 5
+LIBPATCH = 1
+
 
 logger = logging.getLogger(__name__)
 
