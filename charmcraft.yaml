@@ -22,28 +22,11 @@ platforms:
   amd64:
 
 parts:
-  charm:
+  zinc-charm:
+    plugin: uv
+    source: .
     build-snaps:
-      - rustup
       - astral-uv
-    override-build: |
-      rustup toolchain install stable
-      make generate-requirements
-      craftctl default
-    prime:
-      - -*.charm
-      - -spread.yaml
-      - -rockcraft.yaml
-      - -.venv
-      - -CONTRIBUTING.md
-      - -Makefile
-      - -pyproject.toml
-      - -README.md
-      - -requirements-dev.txt
-      - -scripts/
-      - -tests/
-      - -uv.lock
-      - -src/zinc_k8s_operator.egg-info
 
 assumes:
   - juju >= 3.1
