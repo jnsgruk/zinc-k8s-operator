@@ -171,11 +171,11 @@ import ipaddress
 import json
 import logging
 import socket
-from cosl import JujuTopology
 from typing import List, Optional, Union
-from ops.model import Relation
 
 import ops
+from cosl import JujuTopology
+from ops.model import Relation
 
 # The unique Charmhub library identifier, never change it
 LIBID = "dbc3d2e89cb24917b99c40e14354dd25"
@@ -185,7 +185,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 
 logger = logging.getLogger(__name__)
@@ -298,12 +298,12 @@ def _validate_relation_by_interface_and_direction(
 
     if expected_relation_role == ops.RelationRole.provides:
         if relation_name not in charm.meta.provides:
-            raise ops.RelationRoleMismatchError(
+            raise RelationRoleMismatchError(
                 relation_name, ops.RelationRole.provides, ops.RelationRole.requires
             )
     elif expected_relation_role == ops.RelationRole.requires:
         if relation_name not in charm.meta.requires:
-            raise ops.RelationRoleMismatchError(
+            raise RelationRoleMismatchError(
                 relation_name, ops.RelationRole.requires, ops.RelationRole.provides
             )
     else:
