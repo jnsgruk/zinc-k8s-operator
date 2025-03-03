@@ -58,7 +58,7 @@ jobs:
 
       - name: Cache wheels
         id: cache-wheels
-        uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
         with:
           path: /home/runner/snap/charmcraft/common/cache/charmcraft
           key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
@@ -116,7 +116,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download charm artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4
         with:
           name: charm
 
