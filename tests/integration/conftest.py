@@ -4,11 +4,17 @@
 import subprocess
 from pathlib import Path
 
+import jubilant
 import yaml
 from pytest import fixture
 
 from . import TRAEFIK
-from .juju import Juju
+
+
+@fixture(scope="module")
+def juju():
+    with jubilant.temp_model() as juju:
+        yield juju
 
 
 @fixture(scope="module")
@@ -36,8 +42,10 @@ def zinc_oci_image():
 
 
 @fixture(scope="module")
-def traefik_lb_ip():
-    model_name = Juju.status()["model"]["name"]
+def traefik_lb_ip(juju: jubilant.Juju):
+    model_name = juju.model
+    assert model_name is not None
+
     proc = subprocess.run(
         [
             "/snap/bin/kubectl",
