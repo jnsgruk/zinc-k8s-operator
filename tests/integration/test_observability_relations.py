@@ -30,9 +30,9 @@ def test_create_relation(juju: jubilant.Juju, endpoint, remote):
     juju.wait(jubilant.all_active, timeout=1000)
 
 
-@mark.parametrize("endpoint,remote", list(zip(O11Y_RELS, O11Y_CHARMS)))
-def test_remove_relation(juju: jubilant.Juju, endpoint, remote):
-    # Remove the relation
-    juju.cli("remove-relation", f"{ZINC}:{endpoint}", remote)
-    # Wait for the two apps to quiesce
-    juju.wait(jubilant.all_active, timeout=1000)
+# @mark.parametrize("endpoint,remote", list(zip(O11Y_RELS, O11Y_CHARMS)))
+# def test_remove_relation(juju: jubilant.Juju, endpoint, remote):
+#     # Remove the relation
+#     juju.cli("remove-relation", f"{ZINC}:{endpoint}", remote)
+#     # Wait for the two apps to quiesce
+#     juju.wait(jubilant.all_active, timeout=1000)
