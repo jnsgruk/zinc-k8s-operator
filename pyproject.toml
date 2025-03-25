@@ -1,12 +1,12 @@
 [project]
 name = "zinc-k8s-operator"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 
 dependencies = ["ops", "jsonschema", "pydantic", "cosl"]
 
 [project.optional-dependencies]
-dev = ["cosl", "coverage[toml]", "pydantic", "pytest", "ruff", "jubilant"]
+dev = ["cosl", "coverage[toml]", "pydantic", "pytest", "ruff", "jubilant;python_version>='3.12'"]
 
 [tool.coverage.run]
 branch = true

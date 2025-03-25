@@ -35,6 +35,7 @@ unit:
 
 integration:
 	uv run --all-extras \
+		--python 3.12 \
 		pytest \
 		-v \
 		-x \
