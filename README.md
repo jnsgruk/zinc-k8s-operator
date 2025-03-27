@@ -16,7 +16,7 @@ searching using kibana (Kibana is not supported with zinc. Zinc provides its own
 > This is a toy charm I use for experimentation. It does not necessarily represent best
 > practices for scaling, ingress or observability. Since I wrote much of this charm,
 > charming practices have evolved. For more information, see https://juju.is/docs/sdk,
-> or get in touch with us on the [Ubuntu Matrix](https://kagi.com/search?q=ubuntu+martrix)!
+> or get in touch with us on the [Ubuntu Matrix](https://ubuntu.com/community/communications/matrix)!
 
 ## Usage
 
