@@ -16,7 +16,7 @@ def test_deploy(juju: jubilant.Juju, zinc_charm, zinc_oci_image):
     apps = [ZINC, TRAEFIK]
     traefik_config = {"routing_mode": "subdomain", "external_hostname": "foo.bar"}
 
-    juju.deploy(zinc_charm, app=ZINC, resource={"zinc-image": zinc_oci_image})
+    juju.deploy(zinc_charm, app=ZINC, resources={"zinc-image": zinc_oci_image})
     juju.deploy(TRAEFIK, config=traefik_config, trust=True)
     juju.integrate(*apps)
     juju.wait(jubilant.all_active)

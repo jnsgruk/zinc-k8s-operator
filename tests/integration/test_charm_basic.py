@@ -25,7 +25,7 @@ def _get_password(juju: jubilant.Juju) -> str:
 
 
 def test_deploy(juju: jubilant.Juju, zinc_charm, zinc_oci_image):
-    juju.deploy(zinc_charm, app=ZINC, resource={"zinc-image": zinc_oci_image})
+    juju.deploy(zinc_charm, app=ZINC, resources={"zinc-image": zinc_oci_image})
     juju.wait(jubilant.all_active)
 
 

@@ -17,7 +17,7 @@ lint:
 	uv tool run ruff check $(ALL)
 	uv tool run ruff format --check --diff $(ALL)
 
-fmt:
+format:
 	uv tool run ruff check --fix $(ALL)
 	uv tool run ruff format $(ALL)
 
@@ -35,7 +35,6 @@ unit:
 
 integration:
 	uv run --all-extras \
-		--python 3.12 \
 		pytest \
 		-v \
 		-x \
