@@ -1,75 +1,117 @@
-# Copyright 2021 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-import unittest
 from unittest.mock import PropertyMock, patch
 
-from ops import ActiveStatus
-from ops.testing import Harness
+import pytest
+from ops.pebble import ServiceStatus
+from ops.testing import ActiveStatus, Container, Context, PeerRelation, Secret, State, TCPPort
 
 from charm import ZincCharm
-
-PASSWORD = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
-
-
-def _prime_password_secret(harness) -> str:
-    id = harness.add_model_secret(owner=harness.charm.app, content={"password": PASSWORD})
-    harness.add_relation("zinc-peers", "zinc-k8s", app_data={"initial-admin-password": id})
+from zinc import Zinc
 
 
-@patch("charm.Zinc._request_version", lambda x: "0.2.6")
-class TestCharm(unittest.TestCase):
-    def setUp(self):
-        self.harness = Harness(ZincCharm)
-        self.addCleanup(self.harness.cleanup)
-        self.harness.begin()
+@pytest.fixture
+def charm():
+    with patch("charm.Zinc.version", new_callable=PropertyMock(return_value="0.2.6")):
+        yield ZincCharm
 
-    def test_zinc_pebble_ready(self):
-        self.harness.set_can_connect("zinc", True)
-        # Check the initial Pebble plan is empty
-        initial_plan = self.harness.get_container_pebble_plan("zinc")
-        self.assertEqual(initial_plan.to_yaml(), "{}\n")
-        container = self.harness.model.unit.get_container("zinc")
 
-        # Ensure there is a password secret in the peer relation
-        _prime_password_secret(self.harness)
-        # Emit the pebble-ready event for zinc
-        self.harness.charm.on.zinc_pebble_ready.emit(container)
+@pytest.fixture
+def loaded_ctx(charm):
+    ctx = Context(charm)
+    container = Container(name="zinc", can_connect=True)
+    return (ctx, container)
 
-        # Check we've got the plan we expected
-        updated_plan = self.harness.get_container_pebble_plan("zinc").to_dict()
-        self.assertEqual(self.harness.charm._zinc.pebble_layer(PASSWORD), updated_plan)
 
-        # Check the service was started
-        service = self.harness.model.unit.get_container("zinc").get_service("zinc")
-        self.assertTrue(service.is_running())
+def _fetch_zinc_password_from_pebble_plan(state: State):
+    return (
+        state.get_container("zinc")
+        .layers["zinc"]
+        .services["zinc"]
+        .environment["ZINC_FIRST_ADMIN_PASSWORD"]
+    )
 
-        # Check workload version
-        self.assertEqual(self.harness.get_workload_version(), "0.2.6")
-        self.assertEqual(self.harness.model.unit.status, ActiveStatus())
 
-    def test_update_status(self):
-        self.assertEqual(self.harness.get_workload_version(), None)
-        self.harness.container_pebble_ready("zinc")
-        self.assertEqual(self.harness.get_workload_version(), "0.2.6")
+def test_zinc_pebble_ready(loaded_ctx):
+    ctx, container = loaded_ctx
+    state = State(containers=[container])
 
-        with patch("charm.Zinc.version", new_callable=PropertyMock(return_value="0.4.0")):
-            self.harness.charm.on.update_status.emit()
-            self.assertEqual(self.harness.get_workload_version(), "0.4.0")
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
 
-    def test_zinc_password_no_relation(self):
-        self.harness.set_leader(True)
-        new_secret = self.harness.charm._generated_password()
-        self.assertEqual(new_secret, "")
+    assert result.get_container("zinc").layers["zinc"] == Zinc().pebble_layer("")
+    assert result.get_container("zinc").service_statuses == {"zinc": ServiceStatus.ACTIVE}
+    assert result.opened_ports == frozenset({TCPPort(4080)})
+    assert result.workload_version == "0.2.6"
+    assert result.unit_status == ActiveStatus()
 
-    def test_zinc_password_create(self):
-        self.harness.set_leader(True)
-        self.harness.add_relation("zinc-peers", "zinc-k8s", app_data={})
-        new_secret = self.harness.charm._generated_password()
-        self.assertEqual(len(new_secret), 32)
 
-    def test_zinc_password_from_peer_data(self):
-        self.harness.set_leader(True)
-        _prime_password_secret(self.harness)
-        secret = self.harness.charm._generated_password()
-        self.assertEqual(secret, PASSWORD)
+def test_update_status(loaded_ctx):
+    ctx, container = loaded_ctx
+    state = State(containers=[container])
+
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
+    assert result.workload_version == "0.2.6"
+
+    with patch("charm.Zinc.version", new_callable=PropertyMock(return_value="0.4.0")):
+        result = ctx.run(ctx.on.update_status(), result)
+        assert result.workload_version == "0.4.0"
+
+    assert result.unit_status == ActiveStatus()
+
+
+def test_zinc_password_no_relation(loaded_ctx):
+    ctx, container = loaded_ctx
+    state = State(containers=[container])
+
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
+
+    password = _fetch_zinc_password_from_pebble_plan(result)
+    assert len(password) == 0
+
+
+def test_zinc_password_from_relation(loaded_ctx):
+    ctx, container = loaded_ctx
+    secret = Secret(tracked_content={"password": "deadbeef"}, owner="app")
+    state = State(
+        containers=[container],
+        secrets={secret},
+        relations=[
+            PeerRelation(
+                endpoint="zinc-peers", local_app_data={"initial-admin-password": secret.id}
+            )
+        ],
+    )
+
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
+
+    password = _fetch_zinc_password_from_pebble_plan(result)
+    assert password == "deadbeef"
+
+
+def test_zinc_password_create_as_leader(loaded_ctx):
+    ctx, container = loaded_ctx
+    state = State(
+        containers=[container],
+        leader=True,
+        relations=[PeerRelation(endpoint="zinc-peers", local_app_data={})],
+    )
+
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
+
+    password = _fetch_zinc_password_from_pebble_plan(result)
+    assert len(password) == 32
+
+
+def test_zinc_password_create_as_non_leader(loaded_ctx):
+    ctx, container = loaded_ctx
+    state = State(
+        containers=[container],
+        leader=False,
+        relations=[PeerRelation(endpoint="zinc-peers", local_app_data={})],
+    )
+
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
+
+    password = _fetch_zinc_password_from_pebble_plan(result)
+    assert len(password) == 0
