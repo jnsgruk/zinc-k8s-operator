@@ -14,13 +14,13 @@ jobs:
     steps:
       # Get the latest release of zinclabs/zinc in format 'vX.X.X'
       - id: latest-upstream
-        uses: pozetroninc/github-action-get-latest-release@2a61c339ea7ef0a336d1daa35ef0cb1418e7676c # v0.8.0
+        uses: pozetroninc/github-action-get-latest-release@v0.8.0
         with:
           repository: zinclabs/zinc
           excludes: prerelease, draft
 
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
 
       - id: check
         name: Check for new releases
@@ -42,7 +42,7 @@ jobs:
     if: ${{ needs.check-upstream.outputs.release != '' }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
 
       - name: Update version
         run: |
@@ -54,14 +54,14 @@ jobs:
           sed -i 's/^\(version: \).*$/\1'"$latest"'/' rockcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
-      - uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
+      - uses: tibdex/github-app-token@v2
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_KEY }}
 
       - name: Create a PR for local changes
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
+        uses: peter-evans/create-pull-request@v7
         id: cpr
         with:
           token: ${{ steps.generate-token.outputs.token }}

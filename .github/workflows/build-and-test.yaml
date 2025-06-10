@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: sudo snap install --classic astral-uv
       - name: Run linters
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: sudo snap install --classic astral-uv
       - name: Run tests
@@ -34,11 +34,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Check libs
-        uses: canonical/charming-actions/check-libraries@1753e0803f70445132e92acd45c905aba6473225 # 2.7.0
+        uses: canonical/charming-actions/check-libraries@2.7.0
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
 
       - name: Setup LXD
         uses: canonical/setup-lxd@main
@@ -58,7 +58,7 @@ jobs:
 
       - name: Cache wheels
         id: cache-wheels
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        uses: actions/cache@v4
         with:
           path: /home/runner/snap/charmcraft/common/cache/charmcraft
           key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
@@ -72,7 +72,7 @@ jobs:
         run: charmcraft pack -v
 
       - name: Upload charm artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@v4
         with:
           name: charm
           path: ./*.charm
@@ -84,7 +84,7 @@ jobs:
       suites: ${{ steps.suites.outputs.suites }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
 
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
@@ -113,7 +113,7 @@ jobs:
     continue-on-error: ${{ contains(matrix.suite, 'juju_4_0') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@v4
 
       - name: Download charm artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
