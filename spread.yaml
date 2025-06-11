@@ -11,30 +11,24 @@ backends:
   lxd:
     type: adhoc
     allocate: |
-      BASE="${BASE:-noble}"
-      VM_NAME="${VM_NAME:-ubuntu-${BASE}-${RANDOM}}"
+      CONTAINER_NAME="manpages-${SPREAD_SYSTEM/./-}-${RANDOM}"
       DISK="${DISK:-20}"
       CPU="${CPU:-4}"
       MEM="${MEM:-8}"
 
-      cloud_config="$(mktemp)"
-      sed "s|SPREAD_PASSWORD|$SPREAD_PASSWORD|g" tests/spread/cloud-config.yaml > "$cloud_config"
-
       lxc launch --vm \
-        "ubuntu:${BASE}" \
-        "${VM_NAME}" \
-        -c user.user-data="$(cat "$cloud_config")" \
+        "${SPREAD_SYSTEM/-/:}" \
+        "${CONTAINER_NAME}" \
+        -c user.user-data="$(sed "s|SPREAD_PASSWORD|$SPREAD_PASSWORD|g" tests/spread/cloud-config.yaml)" \
         -c limits.cpu="${CPU}" \
         -c limits.memory="${MEM}GiB" \
         -d root,size="${DISK}GiB"
 
       # Wait for the spread user
-      while ! lxc exec "${VM_NAME}" -- id -u spread &>/dev/null; do sleep 0.5; done
-
-      rm "$cloud_config"
+      while ! lxc exec "${CONTAINER_NAME}" -- id -u spread &>/dev/null; do sleep 0.5; done
 
       # Set the instance address for spread
-      ADDRESS "$(lxc ls -f csv | grep "${VM_NAME}" | cut -d"," -f3 | cut -d" " -f1)"
+      ADDRESS "$(lxc ls -f csv | grep "${CONTAINER_NAME}" | cut -d"," -f3 | cut -d" " -f1)"
     discard: |
       instance_name="$(lxc ls -f csv | grep $SPREAD_SYSTEM_ADDRESS | cut -f1 -d",")"
       lxc delete -f $instance_name
