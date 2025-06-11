@@ -25,8 +25,13 @@ parts:
   zinc-charm:
     plugin: uv
     source: .
+    build-packages:
+      - git
     build-snaps:
       - astral-uv
+    override-build: |
+      craftctl default
+      git describe --always > $CRAFT_PART_INSTALL/version
 
 assumes:
   - juju >= 3.1
