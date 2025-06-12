@@ -109,8 +109,6 @@ jobs:
       fail-fast: false
       matrix:
         suite: ${{ fromJSON(needs.define-matrix.outputs.suites) }}
-    # Allow Juju 4.0 jobs to fail, given that it's in beta
-    continue-on-error: ${{ contains(matrix.suite, 'juju_4_0') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
