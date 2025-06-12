@@ -92,7 +92,7 @@ jobs:
       - name: Generate matrix list
         id: suites
         run: |
-          list="$(charmcraft test --list github-ci | sed "s|github-ci:ubuntu-24.04:tests/spread/||g" | jq -r -ncR '[inputs | select(length>0)]')"
+          list="$(charmcraft test --list lxd | sed "s|lxd:ubuntu-24.04:tests/spread/||g" | jq -r -ncR '[inputs | select(length>0)]')"
           echo "suites=$list"
           echo "suites=$list" >> $GITHUB_OUTPUT
 
@@ -128,4 +128,4 @@ jobs:
 
       - name: Run integration tests
         run: |
-          charmcraft test -v "github-ci:ubuntu-24.04:tests/spread/${{ matrix.suite }}"
+          charmcraft test -v "lxd:ubuntu-24.04:tests/spread/${{ matrix.suite }}"
