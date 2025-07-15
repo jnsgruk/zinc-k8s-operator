@@ -27,7 +27,7 @@ You can create a virtual environment manually should you wish, though most of th
 care of automatically if you use the `Makefile` provided:
 
 ```bash
-make fmt           # update your code according to linting rules
+make format        # update your code according to linting rules
 make lint          # code style
 make unit          # unit tests
 
