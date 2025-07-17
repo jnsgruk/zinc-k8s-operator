@@ -2,7 +2,7 @@ name: zinc
 version: 0.4.10
 license: Apache-2.0
 base: bare
-build_base: ubuntu@24.04
+build-base: ubuntu@24.04
 
 platforms:
   amd64:
