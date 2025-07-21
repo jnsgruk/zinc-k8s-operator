@@ -67,8 +67,6 @@ charm-libs:
     version: "0"
   - lib: loki_k8s.loki_push_api
     version: "0"
-  - lib: observability_libs.juju_topology
-    version: "0"
   - lib: parca_k8s.parca_scrape
     version: "0"
   - lib: traefik_k8s.ingress
