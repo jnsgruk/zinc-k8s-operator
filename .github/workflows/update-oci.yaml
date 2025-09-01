@@ -20,7 +20,7 @@ jobs:
           excludes: prerelease, draft
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - id: check
         name: Check for new releases
@@ -42,7 +42,7 @@ jobs:
     if: ${{ needs.check-upstream.outputs.release != '' }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Update version
         run: |
