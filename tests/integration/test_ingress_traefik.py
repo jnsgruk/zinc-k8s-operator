@@ -24,8 +24,8 @@ def test_deploy(juju: jubilant.Juju, zinc_charm, zinc_oci_image):
 
 def test_ingress_setup(juju: jubilant.Juju):
     """Test that Zinc/Traefik are configured correctly."""
-    result = juju.run(f"{TRAEFIK}/0", "show-proxied-endpoints")
-    j = json.loads(result.results["proxied-endpoints"])
+    result = juju.run(f"{TRAEFIK}/0", "show-external-endpoints")
+    j = json.loads(result.results["external-endpoints"])
 
     model_name = juju.model
     assert model_name is not None
