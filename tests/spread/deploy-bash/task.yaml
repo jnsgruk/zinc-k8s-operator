@@ -23,7 +23,7 @@ execute: |
     --resource zinc-image="$oci_image"
 
   # Wait for deploy to settle
-  juju wait-for application zinc-k8s
+  uv run $SPREAD_PATH/tests/spread/deploy-bash/wait-for-zinc.py
 
   # Get IP for zinc-k8s
   address="$(juju status --format json | jq -r '.applications."zinc-k8s".address')"
