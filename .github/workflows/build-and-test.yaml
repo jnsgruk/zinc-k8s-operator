@@ -92,7 +92,7 @@ jobs:
       - name: Generate matrix list
         id: suites
         run: |
-          list="$(charmcraft test --list lxd | sed "s|lxd:ubuntu-24.04:tests/spread/||g" | jq -r -ncR '[inputs | select(length>0)]')"
+          list="$(charmcraft.spread -list lxd | sed "s|lxd:ubuntu-24.04:tests/spread/||g" | jq -r -ncR '[inputs | select(length>0)]')"
           echo "suites=$list"
           echo "suites=$list" >> $GITHUB_OUTPUT
 
@@ -120,9 +120,21 @@ jobs:
       - name: Setup LXD
         uses: canonical/setup-lxd@main
 
+      - name: Cache wheels
+        id: cache-wheels
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/snap/charmcraft/common/cache/charmcraft
+          key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
+          # If the above cache key doesn't match, it's because the uv.lock has changed.
+          # Even so, pre-existing caches may still contain useful cached builds for some
+          # portion of the dependencies, and restore-keys can partially match a cache.
+          restore-keys: |
+            ${{ runner.os }}-wheel-cache-
+
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
 
       - name: Run integration tests
         run: |
-          charmcraft test -v "lxd:ubuntu-24.04:tests/spread/${{ matrix.suite }}"
+          charmcraft.spread -v "lxd:ubuntu-24.04:tests/spread/${{ matrix.suite }}"
