@@ -17,6 +17,7 @@ class Zinc:
 
     _port = 4080
     _log_path = "/var/lib/zincsearch/zinc.log"
+    _log_dir = "/var/lib/zincsearch"
 
     def pebble_layer(self, initial_password) -> dict:
         """Return a Pebble layer for managing Zinc."""
@@ -42,9 +43,14 @@ class Zinc:
         }
 
     @property
-    def log_path(self) -> int:
+    def log_path(self) -> str:
         """Report the path that Zinc is configured to output logs."""
         return self._log_path
+
+    @property
+    def log_dir(self) -> str:
+        """Report the directory that Zinc is configured to output logs."""
+        return self._log_dir
 
     @property
     def port(self) -> int:
