@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download charm artifact(s)
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: charm
 
@@ -63,7 +63,7 @@ jobs:
         uses: canonical/charming-actions/channel@2.7.0
 
       - name: Download charm artifact(s)
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: charm
 
