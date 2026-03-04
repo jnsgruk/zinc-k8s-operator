@@ -26,7 +26,7 @@ execute: |
   uv run $SPREAD_PATH/tests/spread/deploy-bash/wait-for-zinc.py
 
   # Get IP for zinc-k8s
-  address="$(juju status --format json | jq -r '.applications."zinc-k8s".address')"
+  address="$(juju status --format json | jq -r '.applications."zinc-k8s".units["zinc-k8s/0"].address')"
 
   # Check Zinc is up and can be reached over HTTP
   curl \
