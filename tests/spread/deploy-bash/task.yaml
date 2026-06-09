@@ -36,10 +36,13 @@ execute: |
     --retry-delay 5 \
     --retry-max-time 240 \
     "http://${address}:4080/version"
-
   # Get admin password for zinc
-  secret_name="$(juju list-secrets --format json | jq -r 'map_values(select(.owner=="zinc-k8s")) | keys[0]')"
-  password="$(juju show-secret --format json --reveal "$secret_name" | jq -r 'map(.content.Data.password) | .[0]')"
+  password="$(
+    juju ssh zinc-k8s/0 \
+      PEBBLE_SOCKET=/charm/containers/zinc/pebble.socket \
+      /charm/bin/pebble plan \
+      | yq '.services.zinc.environment.ZINC_FIRST_ADMIN_PASSWORD'
+  )"
 
   # Check we can bulk insert data to zinc
   pushd "${SPREAD_PATH}/tests/integration/"

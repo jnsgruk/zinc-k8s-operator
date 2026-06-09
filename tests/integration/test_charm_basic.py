@@ -9,19 +9,21 @@ import json
 from urllib.request import Request, urlopen
 
 import jubilant
+import yaml
 
 from . import ZINC, retry
 
 
 def _get_password(juju: jubilant.Juju) -> str:
-    result = juju.cli("list-secrets", "--format", "json")
-    secrets = json.loads(result)
-    secret_name = next(k for k, v in secrets.items() if v["owner"] == ZINC)
-
-    result = juju.cli("show-secret", secret_name, "--format", "json", "--reveal")
-    secret = json.loads(result)
-
-    return secret[secret_name]["content"]["Data"]["password"]
+    result = juju.cli(
+        "ssh",
+        f"{ZINC}/0",
+        "PEBBLE_SOCKET=/charm/containers/zinc/pebble.socket",
+        "/charm/bin/pebble",
+        "plan",
+    )
+    plan = yaml.safe_load(result)
+    return plan["services"]["zinc"]["environment"]["ZINC_FIRST_ADMIN_PASSWORD"]
 
 
 def test_deploy(juju: jubilant.Juju, zinc_charm, zinc_oci_image):
