@@ -5,7 +5,17 @@ from unittest.mock import PropertyMock, patch
 
 import pytest
 from ops.pebble import ServiceStatus
-from ops.testing import ActiveStatus, Container, Context, PeerRelation, Secret, State, TCPPort
+from ops.testing import (
+    ActiveStatus,
+    Container,
+    Context,
+    PeerRelation,
+    Relation,
+    Secret,
+    State,
+    TCPPort,
+    WaitingStatus,
+)
 
 from charm import ZincCharm
 from zinc import Zinc
@@ -35,20 +45,44 @@ def _fetch_zinc_password_from_pebble_plan(state: State):
 
 def test_zinc_pebble_ready(loaded_ctx):
     ctx, container = loaded_ctx
-    state = State(containers=[container])
+    state = State(
+        containers=[container], leader=True, relations=[PeerRelation(endpoint="zinc-peers")]
+    )
 
     result = ctx.run(ctx.on.pebble_ready(container=container), state)
 
-    assert result.get_container("zinc").layers["zinc"] == Zinc().pebble_layer("")
+    password = _fetch_zinc_password_from_pebble_plan(result)
+    assert result.get_container("zinc").layers["zinc"] == Zinc().pebble_layer(password)
     assert result.get_container("zinc").service_statuses == {"zinc": ServiceStatus.ACTIVE}
     assert result.opened_ports == frozenset({TCPPort(4080)})
     assert result.workload_version == "0.2.6"
     assert result.unit_status == ActiveStatus()
 
 
+def test_zinc_pebble_ready_refreshes_ingress_port_state(loaded_ctx):
+    ctx, container = loaded_ctx
+    relation = Relation(endpoint="ingress", remote_app_name="traefik")
+    state = State(
+        containers=[container],
+        leader=True,
+        relations=[relation, PeerRelation(endpoint="zinc-peers")],
+    )
+
+    result = ctx.run(ctx.on.pebble_ready(container=container), state)
+    ingress_relation = result.get_relation(relation.id)
+
+    assert ingress_relation.local_app_data["port"] == "4080"
+    assert ingress_relation.local_app_data["is_port_open"] == "true"
+    assert ingress_relation.local_app_data["strip-prefix"] == "true"
+    assert ingress_relation.local_unit_data["host"] == '"192.0.2.0"'
+    assert ingress_relation.local_unit_data["ip"] == '"192.0.2.0"'
+
+
 def test_update_status(loaded_ctx):
     ctx, container = loaded_ctx
-    state = State(containers=[container])
+    state = State(
+        containers=[container], leader=True, relations=[PeerRelation(endpoint="zinc-peers")]
+    )
 
     result = ctx.run(ctx.on.pebble_ready(container=container), state)
     assert result.workload_version == "0.2.6"
@@ -60,14 +94,14 @@ def test_update_status(loaded_ctx):
     assert result.unit_status == ActiveStatus()
 
 
-def test_zinc_password_no_relation(loaded_ctx):
+def test_zinc_password_defers_until_peer_relation(loaded_ctx):
     ctx, container = loaded_ctx
     state = State(containers=[container])
 
     result = ctx.run(ctx.on.pebble_ready(container=container), state)
 
-    password = _fetch_zinc_password_from_pebble_plan(result)
-    assert len(password) == 0
+    assert "zinc" not in result.get_container("zinc").layers
+    assert result.unit_status == WaitingStatus("waiting for peer relation")
 
 
 def test_zinc_password_from_relation(loaded_ctx):
@@ -101,9 +135,11 @@ def test_zinc_password_create_as_leader(loaded_ctx):
 
     password = _fetch_zinc_password_from_pebble_plan(result)
     assert len(password) == 32
+    [secret] = result.secrets
+    assert secret.owner == "app"
 
 
-def test_zinc_password_create_as_non_leader(loaded_ctx):
+def test_zinc_password_waits_for_leadership(loaded_ctx):
     ctx, container = loaded_ctx
     state = State(
         containers=[container],
@@ -113,5 +149,5 @@ def test_zinc_password_create_as_non_leader(loaded_ctx):
 
     result = ctx.run(ctx.on.pebble_ready(container=container), state)
 
-    password = _fetch_zinc_password_from_pebble_plan(result)
-    assert len(password) == 0
+    assert "zinc" not in result.get_container("zinc").layers
+    assert result.unit_status == WaitingStatus("waiting for leadership")

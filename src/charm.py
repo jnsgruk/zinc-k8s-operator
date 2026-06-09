@@ -25,10 +25,19 @@ class ZincCharm(ops.CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.zinc_pebble_ready, self._on_zinc_pebble_ready)
+        self.framework.observe(
+            self.on.zinc_peers_relation_changed, self._on_zinc_peers_relation_changed
+        )
         self.framework.observe(self.on.update_status, self._on_update_status)
 
         self._container = self.unit.get_container("zinc")
         self._zinc = Zinc()
+
+        # The Traefik ingress library records whether the requested workload
+        # port is open when it publishes relation data. On Juju 4 the ingress
+        # relation can be established before pebble-ready, so open the port
+        # before the ingress library has a chance to auto-publish data.
+        self.unit.open_port(protocol="tcp", port=self._zinc.port)
 
         # Provide ability for Zinc to be scraped by Prometheus using prometheus_scrape
         self._scraping = MetricsEndpointProvider(
@@ -54,13 +63,34 @@ class ZincCharm(ops.CharmBase):
 
         self._ingress = IngressPerAppRequirer(
             self,
-            host=f"{self.app.name}.{self.model.name}.svc.cluster.local",
             port=self._zinc.port,
             strip_prefix=True,
         )
+        self.framework.observe(self.on.ingress_relation_changed, self._on_ingress_relation_changed)
 
     def _on_zinc_pebble_ready(self, event: ops.WorkloadEvent):
         """Define and start a workload using the Pebble API."""
+        if not self.model.get_relation("zinc-peers"):
+            event.defer()
+            self.unit.status = ops.WaitingStatus("waiting for peer relation")
+            return
+
+        if not self.unit.is_leader() and not self._has_generated_password():
+            event.defer()
+            self.unit.status = ops.WaitingStatus("waiting for leadership")
+            return
+
+        self._configure_zinc()
+
+    def _on_zinc_peers_relation_changed(self, _):
+        """Start Zinc once the peer relation is available."""
+        if self._container.can_connect() and (
+            self.unit.is_leader() or self._has_generated_password()
+        ):
+            self._configure_zinc()
+
+    def _configure_zinc(self):
+        """Define and start Zinc using the Pebble API."""
         password = self._generated_password()
         self._container.make_dir(self._zinc.log_dir, make_parents=True, permissions=0o755)
         self._container.add_layer("zinc", self._zinc.pebble_layer(password), combine=True)
@@ -68,8 +98,35 @@ class ZincCharm(ops.CharmBase):
 
         self.unit.set_workload_version(self._zinc.version)
         self.unit.open_port(protocol="tcp", port=self._zinc.port)
+        self._refresh_ingress_requirements()
 
         self.unit.status = ops.ActiveStatus()
+
+    def _has_generated_password(self) -> bool:
+        """Whether the generated admin password secret is already available."""
+        relation = self.model.get_relation("zinc-peers")
+        return bool(relation and relation.data[self.app].get("initial-admin-password"))
+
+    def _on_ingress_relation_changed(self, _):
+        """Refresh ingress data once Juju has assigned a bind address."""
+        if self._container.can_connect():
+            self._refresh_ingress_requirements()
+
+    def _refresh_ingress_requirements(self):
+        """Publish ingress data using the unit IP as Traefik's backend host."""
+        self.unit.open_port(protocol="tcp", port=self._zinc.port)
+
+        for relation in self.model.relations["ingress"]:
+            binding = self.model.get_binding(relation)
+            address = None
+            if binding is not None and binding.network.bind_address is not None:
+                address = str(binding.network.bind_address)
+
+            self._ingress.provide_ingress_requirements(
+                host=address,
+                ip=address,
+                port=self._zinc.port,
+            )
 
     def _on_update_status(self, _):
         """Update the status of the application."""
