@@ -3,7 +3,7 @@ name = "zinc-k8s-operator"
 version = "0.1.0"
 requires-python = ">=3.10"
 
-dependencies = ["ops>=3.7.1", "jsonschema", "pydantic", "cosl"]
+dependencies = ["ops>=3.8.0", "jsonschema", "pydantic", "cosl"]
 
 [project.optional-dependencies]
 dev = [
