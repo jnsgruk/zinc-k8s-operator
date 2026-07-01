@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: sudo snap install --classic astral-uv
       - name: Run linters
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: sudo snap install --classic astral-uv
       - name: Run tests
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Check libs
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup LXD
         uses: canonical/setup-lxd@main
@@ -58,7 +58,7 @@ jobs:
 
       - name: Cache wheels
         id: cache-wheels
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /home/runner/snap/charmcraft/common/cache/charmcraft
           key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
@@ -84,7 +84,7 @@ jobs:
       suites: ${{ steps.suites.outputs.suites }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
@@ -110,7 +110,7 @@ jobs:
         suite: ${{ fromJSON(needs.define-matrix.outputs.suites) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download charm artifact
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v4
@@ -122,7 +122,7 @@ jobs:
 
       - name: Cache wheels
         id: cache-wheels
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /home/runner/snap/charmcraft/common/cache/charmcraft
           key: ${{ runner.os }}-wheel-cache-${{ hashFiles('./uv.lock') }}
