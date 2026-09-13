@@ -48,7 +48,7 @@ resources:
     type: oci-image
     description: OCI image for zinc
     # Included for simplicity in integration tests
-    upstream-source: ghcr.io/jnsgruk/zinc:0.4.10
+    upstream-source: ghcr.io/jnsgruk/zinc:1.0.0-beta1
 
 peers:
   zinc-peers:
