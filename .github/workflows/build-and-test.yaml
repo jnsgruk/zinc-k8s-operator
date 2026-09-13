@@ -43,6 +43,22 @@ jobs:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
+  pack-rock:
+    name: Build ROCK
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup LXD
+        uses: canonical/setup-lxd@v1
+
+      - name: Install rockcraft
+        run: sudo snap install rockcraft --edge --classic
+
+      - name: Pack ROCK
+        run: rockcraft pack --verbose
+
   pack-charm:
     name: Build charm
     runs-on: ubuntu-24.04
