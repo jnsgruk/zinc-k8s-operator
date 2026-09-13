@@ -39,7 +39,7 @@ parts:
     source: https://github.com/asdf-vm/asdf.git
     source-tag: v0.13.1
     build-environment:
-      - NODE_VERSION: 18.16.0
+      - NODE_VERSION: 24.0.0
     override-build: |
       source "./asdf.sh"
       asdf plugin add nodejs
@@ -53,7 +53,7 @@ parts:
     source-type: git
     source-tag: v$CRAFT_PROJECT_VERSION
     build-snaps:
-      - go/1.20/stable
+      - go/1.27/stable
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
@@ -65,8 +65,8 @@ parts:
       source "$(pwd)/../../nodejs/build/asdf.sh"
 
       # Build the web ui, which is embedded in the go binary later
-      pushd web
-      npm install
+      pushd frontend
+      npm ci
       npm run build
       popd
 
@@ -94,7 +94,7 @@ parts:
     source-tag: v0.17.8
     source-subdir: images/build/go-runner
     build-snaps:
-      - go/1.20/stable
+      - go/1.27/stable
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
