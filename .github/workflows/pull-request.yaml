@@ -6,7 +6,6 @@ on:
       - ".github/workflows/update-libs.yaml"
       - ".github/workflows/update-oci.yaml"
       - ".gitignore"
-      - "rockcraft.yaml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
