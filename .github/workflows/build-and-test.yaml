@@ -59,6 +59,15 @@ jobs:
       - name: Pack ROCK
         run: rockcraft pack --verbose
 
+      - name: Validate non-root ROCK
+        run: |
+          sudo snap install --classic astral-uv
+          sudo apt-get install -y skopeo
+          sudo skopeo --insecure-policy copy \
+            "oci-archive:$(realpath ./zinc_*.rock)" \
+            "docker-daemon:zinc:non-root-test"
+          ZINC_TEST_IMAGE=zinc:non-root-test make rock-test
+
   pack-charm:
     name: Build charm
     runs-on: ubuntu-24.04
