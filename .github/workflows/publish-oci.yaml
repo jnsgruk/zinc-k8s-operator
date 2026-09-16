@@ -49,9 +49,13 @@ jobs:
             --dest-creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
 
       - name: Update charm metadata
+        env:
+          ZINC_VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          version=${{ steps.get_version.outputs.VERSION }}
-          sed -i -e "s/zinc:[0-9]\+\.[0-9]\+\.[0-9]\+/zinc:${version}/g" charmcraft.yaml
+          if [ "$(yq -r '.resources.zinc-image.upstream-source' charmcraft.yaml)" = "ghcr.io/jnsgruk/zinc:${ZINC_VERSION}" ]; then
+            exit 0
+          fi
+          yq -i '.resources.zinc-image.upstream-source = "ghcr.io/jnsgruk/zinc:" + strenv(ZINC_VERSION)' charmcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@v2
