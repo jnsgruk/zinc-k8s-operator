@@ -46,6 +46,8 @@ jobs:
   pack-rock:
     name: Build ROCK
     runs-on: ubuntu-24.04
+    outputs:
+      image: ${{ steps.test-image.outputs.image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -67,6 +69,15 @@ jobs:
             "oci-archive:$(realpath ./zinc_*.rock)" \
             "docker-daemon:zinc:non-root-test"
           ZINC_TEST_IMAGE=zinc:non-root-test make rock-test
+
+      - name: Upload test ROCK to ttl.sh
+        id: test-image
+        run: |
+          image="ttl.sh/zinc-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}:6h"
+          sudo skopeo --insecure-policy copy \
+            "oci-archive:$(realpath ./zinc_*.rock)" \
+            "docker://${image}"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
 
   pack-charm:
     name: Build charm
@@ -128,6 +139,7 @@ jobs:
       - define-matrix
       - lint
       - pack-charm
+      - pack-rock
       - unit-test
     strategy:
       fail-fast: false
@@ -159,6 +171,13 @@ jobs:
 
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
+
+      - name: Configure test ROCK resource
+        env:
+          ZINC_TEST_IMAGE: ${{ needs.pack-rock.outputs.image }}
+        run: |
+          sudo snap install yq
+          /snap/bin/yq -i '.resources.zinc-image.upstream-source = strenv(ZINC_TEST_IMAGE)' charmcraft.yaml
 
       - name: Run integration tests
         run: |

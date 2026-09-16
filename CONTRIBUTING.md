@@ -66,11 +66,17 @@ container security contexts. These tests require Juju 3.6 or later.
 The [`charm-user` setting](https://canonical.com/juju/docs/charmcraft/4.3/reference/files/charmcraft-yaml-file/)
 was introduced in Juju 3.6.
 
-For local validation, use the rebuilt rock above. The `upstream-source` in `charmcraft.yaml`
-continues to refer to the published image until a rebuilt image is published; deploying that
-resource does not include the new directory permissions. A Kubernetes deployment also needs
-the mounted data volume to be writable by UID/GID 584792, which the basic deployment tests
-exercise when Zinc starts and ingests data.
+CI uploads the validated rock to `ttl.sh` under a name unique to the workflow run and attempt,
+with a six-hour expiry. Every integration job waits for that upload and sets the checked-out
+`charmcraft.yaml` image resource to the test image before running Spread. Both the Python
+integration fixtures and the shell deployment test read this resource, so they deploy the
+rock built by that workflow. This follows the
+[Ubuntu manpages operator's CI setup](https://github.com/canonical/ubuntu-manpages-operator/blob/main/.github/workflows/build-and-test.yaml).
+
+Local integration runs use the `upstream-source` in `charmcraft.yaml`. To test a rebuilt rock
+in Kubernetes, upload it to a registry reachable by the cluster and set that resource to the
+uploaded image before running Spread. The mounted data volume must also be writable by
+UID/GID 584792, which the basic deployment tests exercise when Zinc starts and ingests data.
 
 To show the available integration tests, you can:
 
