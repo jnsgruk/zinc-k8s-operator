@@ -6,12 +6,23 @@
 import base64
 import gzip
 import json
+from pathlib import Path
 from urllib.request import Request, urlopen
 
 import jubilant
+import lightkube
+import pytest
 import yaml
 
 from . import ZINC, retry
+from .helpers import (
+    assert_security_context,
+    generate_container_securitycontext_map,
+    get_pod_names,
+)
+
+METADATA = yaml.safe_load(Path("charmcraft.yaml").read_text())
+CONTAINERS_SECURITY_CONTEXT_MAP = generate_container_securitycontext_map(METADATA)
 
 
 def _get_password(juju: jubilant.Juju) -> str:
@@ -29,6 +40,18 @@ def _get_password(juju: jubilant.Juju) -> str:
 def test_deploy(juju: jubilant.Juju, zinc_charm, zinc_oci_image):
     juju.deploy(zinc_charm, app=ZINC, resources={"zinc-image": zinc_oci_image})
     juju.wait(jubilant.all_active)
+
+
+@pytest.mark.parametrize("container_name", list(CONTAINERS_SECURITY_CONTEXT_MAP))
+def test_container_security_context(juju: jubilant.Juju, container_name: str):
+    client = lightkube.Client()
+    assert juju.model is not None
+    pods = get_pod_names(client, juju.model, ZINC)
+    assert pods, f"No pods found for {ZINC}"
+    for pod_name in pods:
+        assert_security_context(
+            client, pod_name, container_name, CONTAINERS_SECURITY_CONTEXT_MAP, juju.model
+        )
 
 
 @retry(retry_num=10, retry_sleep_sec=3)
