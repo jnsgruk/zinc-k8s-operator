@@ -34,6 +34,18 @@ services:
     command: /bin/go-runner --log-file=/var/lib/zincsearch/zinc.log --also-stdout=true --redirect-stderr=true /bin/zincsearch
 
 parts:
+  user-setup:
+    plugin: nil
+    override-prime: |
+      craftctl default
+      # Zinc writes data and logs here; the Loki library installs Promtail
+      # and writes its configuration and positions in the other two paths.
+      ZINC_UID=584792
+      ZINC_GID=584792
+      mkdir -p var/lib/zincsearch opt/promtail etc/promtail
+      chown "${ZINC_UID}:${ZINC_GID}" var/lib/zincsearch opt/promtail etc/promtail
+      chmod 0750 var/lib/zincsearch opt/promtail etc/promtail
+
   nodejs:
     plugin: dump
     source: https://github.com/asdf-vm/asdf.git
