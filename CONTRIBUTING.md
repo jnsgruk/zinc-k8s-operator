@@ -52,6 +52,26 @@ Integration testing is taken care of using `spread`. Currently, there are two su
 tests can either be run in LXD virtual machines, or on a pre-provisioned server (such as a Github
 Actions runner or development VM).
 
+To validate the rock's default non-root UID/GID and writable Zinc and Promtail paths, build it
+with `rockcraft pack`, then load it into Docker and run the image test:
+
+```bash
+sudo skopeo --insecure-policy copy oci-archive:./zinc_1.0.0-beta1_amd64.rock docker-daemon:zinc:non-root-test
+ZINC_TEST_IMAGE=zinc:non-root-test make rock-test
+```
+
+The test temporarily mounts a static BusyBox to inspect the bare image without adding a shell
+to the shipped rock. The basic deployment integration tests also check the charm and workload
+container security contexts. These tests require Juju 3.6 or later.
+The [`charm-user` setting](https://canonical.com/juju/docs/charmcraft/4.3/reference/files/charmcraft-yaml-file/)
+was introduced in Juju 3.6.
+
+For local validation, use the rebuilt rock above. The `upstream-source` in `charmcraft.yaml`
+continues to refer to the published image until a rebuilt image is published; deploying that
+resource does not include the new directory permissions. A Kubernetes deployment also needs
+the mounted data volume to be writable by UID/GID 584792, which the basic deployment tests
+exercise when Zinc starts and ingests data.
+
 To show the available integration tests, you can:
 
 ```bash
