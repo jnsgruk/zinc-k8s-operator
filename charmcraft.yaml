@@ -17,6 +17,7 @@ summary: |
   library.
 
 type: charm
+charm-user: non-root
 base: ubuntu@24.04
 platforms:
   amd64:
@@ -34,11 +35,13 @@ parts:
       git describe --always > $CRAFT_PART_INSTALL/version
 
 assumes:
-  - juju >= 3.1
+  - juju >= 3.6
 
 containers:
   zinc:
     resource: zinc-image
+    uid: 584792
+    gid: 584792
     mounts:
       - storage: data
         location: /var/lib/zincsearch
