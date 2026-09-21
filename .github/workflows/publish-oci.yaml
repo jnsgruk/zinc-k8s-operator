@@ -55,7 +55,9 @@ jobs:
           if [ "$(yq -r '.resources.zinc-image.upstream-source' charmcraft.yaml)" = "ghcr.io/jnsgruk/zinc:${ZINC_VERSION}" ]; then
             exit 0
           fi
-          yq -i '.resources.zinc-image.upstream-source = "ghcr.io/jnsgruk/zinc:" + strenv(ZINC_VERSION)' charmcraft.yaml
+          sed -i -E \
+            "s|^([[:space:]]*upstream-source:)[[:space:]]*.*$|\\1 ghcr.io/jnsgruk/zinc:${ZINC_VERSION}|" \
+            charmcraft.yaml
 
       # We use a Github App and token to allow Github Actions to run properly on the created PR.
       - uses: tibdex/github-app-token@v2
