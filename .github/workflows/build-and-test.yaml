@@ -54,6 +54,8 @@ jobs:
 
       - name: Setup LXD
         uses: canonical/setup-lxd@v1
+        with:
+          channel: latest/stable
 
       - name: Install rockcraft
         run: sudo snap install rockcraft --edge --classic
@@ -88,6 +90,8 @@ jobs:
 
       - name: Setup LXD
         uses: canonical/setup-lxd@main
+        with:
+          channel: latest/stable
 
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
@@ -156,6 +160,8 @@ jobs:
 
       - name: Setup LXD
         uses: canonical/setup-lxd@main
+        with:
+          channel: latest/stable
 
       - name: Cache wheels
         id: cache-wheels
